@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pack Your Bags, You Magnificent Human 🌍</title>
+<style>
+  :root {
+    --sun: #FFD93D;
+    --sky: #6BCB77;
+    --ocean: #4D96FF;
+    --coral: #FF6B6B;
+    --sand: #FFF3B0;
+    --dark: #1a1a2e;
+    --white: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+    background: var(--dark);
+    color: var(--white);
+    overflow-x: hidden;
+    cursor: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><text y='28' font-size='28'>✈️</text></svg>") 16 16, auto;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stars {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 10% 20%, white 0%, transparent 100%),
+      radial-gradient(1px 1px at 30% 60%, white 0%, transparent 100%),
+      radial-gradient(1px 1px at 50% 10%, white 0%, transparent 100%),
+      radial-gradient(1px 1px at 70% 80%, white 0%, transparent 100%),
+      radial-gradient(1px 1px at 85% 30%, white 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 20% 90%, rgba(255,255,255,0.8) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 60% 45%, rgba(255,255,255,0.8) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 55%, white 0%, transparent 100%),
+      radial-gradient(1px 1px at 45% 75%, white 0%, transparent 100%),
+      radial-gradient(2px 2px at 5% 50%, rgba(255,215,61,0.6) 0%, transparent 100%);
+    animation: twinkle 4s ease-in-out infinite alternate;
+  }
+
+  @keyframes twinkle {
+    0% { opacity: 0.6; }
+    100% { opacity: 1; }
+  }
+
+  .plane-fly {
+    position: absolute;
+    font-size: 2.5rem;
+    animation: flyAcross 8s linear infinite;
+    top: 15%;
+  }
+
+  @keyframes flyAcross {
+    0%   { left: -5%; transform: scaleX(1); }
+    49%  { left: 105%; transform: scaleX(1); }
+    50%  { left: 105%; transform: scaleX(-1); }
+    100% { left: -5%; transform: scaleX(-1); }
+  }
+
+  .hero-emoji {
+    font-size: 5rem;
+    animation: bounce 1.5s ease-in-out infinite;
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50%       { transform: translateY(-20px) rotate(5deg); }
+  }
+
+  .hero h1 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(2.5rem, 7vw, 5.5rem);
+    line-height: 1.1;
+    background: linear-gradient(90deg, var(--sun), var(--coral), var(--ocean));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1.2rem;
+    animation: fadeSlideUp 1s ease forwards;
+  }
+
+  .hero p {
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
+    color: rgba(255,255,255,0.85);
+    max-width: 600px;
+    line-height: 1.7;
+    animation: fadeSlideUp 1s 0.3s ease both;
+    font-weight: 600;
+  }
+
+  .hero-btn {
+    margin-top: 2.5rem;
+    padding: 1rem 2.5rem;
+    background: linear-gradient(135deg, var(--coral), var(--sun));
+    color: var(--dark);
+    font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+    font-weight: 900;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: transform 0.2s, box-shadow 0.2s;
+    animation: fadeSlideUp 1s 0.6s ease both;
+    box-shadow: 0 8px 30px rgba(255,107,107,0.4);
+  }
+
+  .hero-btn:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 16px 40px rgba(255,107,107,0.6);
+  }
+
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SCROLL INDICATOR */
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    font-size: 2rem;
+    animation: bounce2 1.5s ease-in-out infinite;
+    opacity: 0.7;
+  }
+  @keyframes bounce2 {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(10px); }
+  }
+
+  /* SECTION BASE */
+  section {
+    padding: 5rem 1.5rem;
+  }
+
+  .section-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  /* REASONS SECTION */
+  .reasons {
+    background: linear-gradient(180deg, #16213e, #0f3460);
+  }
+
+  .reasons .section-title {
+    color: var(--sun);
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    transition: transform 0.3s, background 0.3s;
+    backdrop-filter: blur(10px);
+  }
+
+  .card:hover {
+    transform: translateY(-8px) rotate(1deg);
+    background: rgba(255,255,255,0.12);
+  }
+
+  .card-emoji {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 1rem;
+    animation: spin3d 6s ease-in-out infinite;
+  }
+
+  @keyframes spin3d {
+    0%, 100% { transform: rotateY(0); }
+    50%       { transform: rotateY(360deg); }
+  }
+
+  .card h3 {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--sun);
+    margin-bottom: 0.5rem;
+  }
+
+  .card p {
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.6;
+  }
+
+  /* DESTINATIONS */
+  .destinations {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+  }
+
+  .destinations .section-title {
+    color: var(--sky);
+  }
+
+  .dest-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .dest-card {
+    border-radius: 24px;
+    overflow: hidden;
+    position: relative;
+    height: 300px;
+    display: flex;
+    align-items: flex-end;
+    cursor: pointer;
+    transition: transform 0.3s;
+  }
+
+  .dest-card:hover { transform: scale(1.03); }
+
+  .dest-bg {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8rem;
+    background: rgba(0,0,0,0.15);
+    transition: font-size 0.3s;
+  }
+
+  .dest-card:hover .dest-bg { font-size: 10rem; }
+
+  .dest-card:nth-child(1) { background: linear-gradient(135deg, #667eea, #764ba2); }
+  .dest-card:nth-child(2) { background: linear-gradient(135deg, #f093fb, #f5576c); }
+  .dest-card:nth-child(3) { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+  .dest-card:nth-child(4) { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+  .dest-card:nth-child(5) { background: linear-gradient(135deg, #fa709a, #fee140); }
+  .dest-card:nth-child(6) { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
+
+  .dest-info {
+    position: relative;
+    z-index: 1;
+    padding: 1.2rem 1.5rem;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    width: 100%;
+  }
+
+  .dest-info h3 { font-size: 1.3rem; font-weight: 900; }
+  .dest-info p  { font-size: 0.85rem; opacity: 0.85; }
+
+  /* PACKING LIST */
+  .packing {
+    background: linear-gradient(180deg, #0f3460, #533483);
+    text-align: center;
+  }
+
+  .packing .section-title { color: var(--coral); }
+
+  .packing-list {
+    list-style: none;
+    max-width: 700px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .packing-list li {
+    background: rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 1rem 1.2rem;
+    font-size: 1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    transition: background 0.2s, transform 0.2s;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .packing-list li:hover {
+    background: rgba(255,255,255,0.15);
+    transform: translateX(6px);
+  }
+
+  .packing-list li span { font-size: 1.5rem; }
+
+  /* SURVIVAL TIPS */
+  .tips {
+    background: linear-gradient(135deg, #533483, #1a1a2e);
+  }
+
+  .tips .section-title { color: var(--sky); }
+
+  .tips-list {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .tip-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    background: rgba(255,255,255,0.05);
+    border-radius: 16px;
+    padding: 1.2rem 1.5rem;
+    border-left: 4px solid var(--ocean);
+    transition: transform 0.2s;
+  }
+
+  .tip-item:hover { transform: translateX(8px); }
+  .tip-item:nth-child(odd)  { border-left-color: var(--coral); }
+  .tip-item:nth-child(even) { border-left-color: var(--sky); }
+
+  .tip-num {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 2rem;
+    color: var(--sun);
+    min-width: 2rem;
+    line-height: 1;
+  }
+
+  .tip-item p { font-size: 1rem; line-height: 1.6; color: rgba(255,255,255,0.85); }
+  .tip-item strong { color: var(--white); }
+
+  /* QUOTE SECTION */
+  .quote-section {
+    background: linear-gradient(135deg, #FFD93D22, #FF6B6B22), #1a1a2e;
+    text-align: center;
+    padding: 6rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .quote-section::before {
+    content: '🌍';
+    font-size: 20rem;
+    position: absolute;
+    opacity: 0.04;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: rotateSlow 30s linear infinite;
+  }
+
+  @keyframes rotateSlow { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+  blockquote {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(1.5rem, 4vw, 2.8rem);
+    line-height: 1.4;
+    max-width: 800px;
+    margin: 0 auto 1.5rem;
+    color: var(--sun);
+    position: relative;
+    z-index: 1;
+  }
+
+  .quote-sub {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.7);
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* MAP TICKER */
+  .ticker {
+    background: var(--sun);
+    color: var(--dark);
+    padding: 0.8rem 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .ticker-inner {
+    display: inline-block;
+    animation: tickerMove 20s linear infinite;
+    font-weight: 900;
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+  }
+
+  @keyframes tickerMove {
+    from { transform: translateX(100vw); }
+    to   { transform: translateX(-100%); }
+  }
+
+  /* FOOTER */
+  footer {
+    background: #0a0a0f;
+    text-align: center;
+    padding: 3rem 1.5rem;
+  }
+
+  .footer-emoji {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 1rem;
+    animation: heartbeat 1.5s ease-in-out infinite;
+  }
+
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    15%       { transform: scale(1.3); }
+    30%       { transform: scale(1); }
+    45%       { transform: scale(1.15); }
+    60%       { transform: scale(1); }
+  }
+
+  footer p {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.8;
+  }
+
+  footer strong { color: var(--sun); }
+
+  /* CONFETTI POP */
+  .confetti-btn {
+    background: linear-gradient(135deg, var(--sky), var(--ocean));
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+    font-weight: 900;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 1.5rem;
+    transition: transform 0.2s;
+  }
+
+  .confetti-btn:hover { transform: scale(1.1); }
+
+  .confetti-piece {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 9999;
+    animation: confettiFall 3s ease-in forwards;
+  }
+
+  @keyframes confettiFall {
+    0%   { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* WIGGLE ON HOVER */
+  .wiggle:hover { animation: wiggle 0.4s ease-in-out; }
+  @keyframes wiggle {
+    0%,100%{ transform: rotate(0); }
+    25%    { transform: rotate(-8deg); }
+    75%    { transform: rotate(8deg); }
+  }
+
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="stars"></div>
+  <div class="plane-fly">✈️</div>
+
+  <span class="hero-emoji">🌍</span>
+  <h1>The World Is Calling.<br>And It's On Speakerphone.</h1>
+  <p>Life is short. Luggage fees are real. But adventure? Adventure is absolutely, ridiculously, gloriously WORTH IT. This page was made especially for someone amazing who deserves the whole world. 🌟</p>
+  <button class="hero-btn wiggle" onclick="document.getElementById('why').scrollIntoView({behavior:'smooth'})">Let's GO already! 🚀</button>
+
+  <div class="scroll-hint">👇</div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    🗺️ PARIS &nbsp;·&nbsp; 🌴 BALI &nbsp;·&nbsp; 🏔️ PATAGONIA &nbsp;·&nbsp; 🏜️ SAHARA &nbsp;·&nbsp; 🏯 KYOTO &nbsp;·&nbsp; 🌊 MALDIVES &nbsp;·&nbsp; 🎭 VENICE &nbsp;·&nbsp; 🦁 SERENGETI &nbsp;·&nbsp; 🌺 HAWAII &nbsp;·&nbsp; 🧊 ICELAND &nbsp;·&nbsp; 🦘 AUSTRALIA &nbsp;·&nbsp; 🎆 NEW YORK &nbsp;·&nbsp; 🍕 NAPLES &nbsp;·&nbsp; 🐧 ANTARCTICA &nbsp;·&nbsp; 🌸 TOKYO &nbsp;·&nbsp;
+  </div>
+</div>
+
+<!-- WHY TRAVEL -->
+<section class="reasons" id="why">
+  <h2 class="section-title">🤔 Scientifically Proven Reasons to Pack Right Now</h2>
+  <div class="cards-grid">
+    <div class="card">
+      <span class="card-emoji">🍜</span>
+      <h3>You Can Eat EVERYTHING</h3>
+      <p>Tacos in Mexico at 2am. Street noodles in Vietnam. Croissants in Paris that make you question every bread decision you've ever made. Calories consumed abroad don't count. Science.*</p>
+    </div>
+    <div class="card">
+      <span class="card-emoji">🤳</span>
+      <h3>Legendary Photos</h3>
+      <p>Your Instagram will go from "wow they seem fine" to "okay I'm genuinely jealous." Sunsets over Santorini hit different when you're actually there being fabulous.</p>
+    </div>
+    <div class="card">
+      <span class="card-emoji">🧠</span>
+      <h3>Brain Upgrade Included</h3>
+      <p>Every new place rewires your brain. Getting lost in a foreign city? That's not a mistake — that's a $0 therapy session. You're welcome, neurons.</p>
+    </div>
+    <div class="card">
+      <span class="card-emoji">😂</span>
+      <h3>Hilarious Stories Forever</h3>
+      <p>Nobody's ever told a legendary story that started with "I stayed home." But "So I accidentally boarded the wrong train in Italy..."? That's gold. Pure gold.</p>
+    </div>
+    <div class="card">
+      <span class="card-emoji">🦋</span>
+      <h3>You'll Glow Up</h3>
+      <p>There's a version of you who has watched a sunrise over ancient ruins while sipping local coffee. That version is cooler. Let's find them.</p>
+    </div>
+    <div class="card">
+      <span class="card-emoji">🌈</span>
+      <h3>The World Is Gorgeous</h3>
+      <p>Glowing plankton beaches. Lavender fields in Provence. The Northern Lights. Your couch is nice but Earth is showing off and it would be rude not to look.</p>
+    </div>
+  </div>
+  <p style="text-align:center; margin-top:2rem; opacity:0.5; font-size:0.8rem;">*Not peer-reviewed but we stand by it</p>
+</section>
+
+<!-- DREAM DESTINATIONS -->
+<section class="destinations">
+  <h2 class="section-title">🗺️ Places That Want You To Visit Them</h2>
+  <div class="dest-grid">
+    <div class="dest-card">
+      <div class="dest-bg">🗼</div>
+      <div class="dest-info">
+        <h3>Paris, France</h3>
+        <p>Baguettes, berets & ignoring your diet magnificently</p>
+      </div>
+    </div>
+    <div class="dest-card">
+      <div class="dest-bg">🌺</div>
+      <div class="dest-info">
+        <h3>Bali, Indonesia</h3>
+        <p>Rice terraces, temples & convincing everyone you "found yourself"</p>
+      </div>
+    </div>
+    <div class="dest-card">
+      <div class="dest-bg">🏔️</div>
+      <div class="dest-info">
+        <h3>Patagonia</h3>
+        <p>So dramatic it makes your problems look adorably small</p>
+      </div>
+    </div>
+    <div class="dest-card">
+      <div class="dest-bg">🏯</div>
+      <div class="dest-info">
+        <h3>Kyoto, Japan</h3>
+        <p>Cherry blossoms & feeling like you're inside a painting</p>
+      </div>
+    </div>
+    <div class="dest-card">
+      <div class="dest-bg">🐪</div>
+      <div class="dest-info">
+        <h3>Marrakech, Morocco</h3>
+        <p>Spices, souks & getting gloriously lost in the medina</p>
+      </div>
+    </div>
+    <div class="dest-card">
+      <div class="dest-bg">🌅</div>
+      <div class="dest-info">
+        <h3>Santorini, Greece</h3>
+        <p>Blue domes, sunsets & eating your body weight in tzatziki</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PACKING LIST -->
+<section class="packing">
+  <h2 class="section-title">🧳 What To Actually Pack</h2>
+  <ul class="packing-list">
+    <li><span>😁</span> A big smile (it's the best currency)</li>
+    <li><span>🗺️</span> A sense of adventure (mandatory)</li>
+    <li><span>📱</span> Fully charged phone (duh)</li>
+    <li><span>🕶️</span> Sunglasses (look cool, always)</li>
+    <li><span>💳</span> Card that works abroad (check this twice)</li>
+    <li><span>🎧</span> Playlist for the journey</li>
+    <li><span>📖</span> Journal to capture everything</li>
+    <li><span>🧴</span> Sunscreen (tourist lobster is not cute)</li>
+    <li><span>🍫</span> Emergency chocolate</li>
+    <li><span>🤣</span> Humor for when things go sideways</li>
+    <li><span>✨</span> High vibes ONLY</li>
+    <li><span>❤️</span> An open heart</li>
+  </ul>
+</section>
+
+<!-- SURVIVAL TIPS -->
+<section class="tips">
+  <h2 class="section-title">🧭 Extremely Official Travel Tips</h2>
+  <div class="tips-list">
+    <div class="tip-item">
+      <div class="tip-num">01</div>
+      <p><strong>Embrace getting lost.</strong> Every wrong turn in a foreign city is secretly a shortcut to the best story you'll tell for the next 10 years. GPS is for quitters. (Just kidding. Use GPS. But also get lost.)</p>
+    </div>
+    <div class="tip-item">
+      <div class="tip-num">02</div>
+      <p><strong>Say yes to the weird food.</strong> That mystery street food? That fermented thing the locals love? EAT IT. Your stomach will forgive you eventually. Probably.</p>
+    </div>
+    <div class="tip-item">
+      <div class="tip-num">03</div>
+      <p><strong>Talk to strangers.</strong> (Yes, we know what we were told as kids.) Fellow travelers and locals have the best tips, the wildest stories, and sometimes free snacks. Highly recommend.</p>
+    </div>
+    <div class="tip-item">
+      <div class="tip-num">04</div>
+      <p><strong>Miss your flight? New adventure unlocked.</strong> Every travel disaster becomes a trophy. "The time I slept in a Thai airport" beats any Netflix documentary.</p>
+    </div>
+    <div class="tip-item">
+      <div class="tip-num">05</div>
+      <p><strong>You don't need to "be ready."</strong> No one who ever had the trip of their life was 100% ready. Pack a bag, book something, figure out the rest on the way. Future You will send back thank-you notes.</p>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<section class="quote-section">
+  <blockquote>
+    "The world is a book, and those who do not travel read only one page."
+  </blockquote>
+  <p class="quote-sub">— Saint Augustine, who clearly wanted you to go somewhere amazing right now 📖✈️</p>
+</section>
+
+<!-- FINAL MESSAGE -->
+<section style="background: linear-gradient(135deg, #1a1a2e, #0f3460); text-align:center; padding:5rem 2rem;">
+  <div style="max-width:700px; margin:0 auto;">
+    <div style="font-size:4rem; margin-bottom:1.5rem; animation:bounce 1.5s infinite">🌟</div>
+    <h2 style="font-family:Georgia,'Times New Roman',serif; font-size:clamp(1.8rem,4vw,3rem); color:var(--sun); margin-bottom:1.5rem;">This Page Is For You.</h2>
+    <p style="font-size:1.15rem; color:rgba(255,255,255,0.85); line-height:1.9; font-weight:600;">
+      Hey you. Yes, YOU — the spectacular, one-of-a-kind human reading this. 🎉<br><br>
+      The world has 195 countries, 8 billion people, infinite plates of delicious food, and roughly 5 million sunsets still waiting for you to watch them. <br><br>
+      It would be an absolute tragedy for someone as wonderful as you to miss out on any of it. <br><br>
+      So take a deep breath, pick a destination (literally any of them), and remember: <strong style="color:var(--coral);">you belong on an adventure.</strong> 🚀
+    </p>
+    <button class="confetti-btn" onclick="launchConfetti()">🎊 Celebrate being awesome!</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-emoji">✈️</span>
+  <p>Made with <strong>wanderlust</strong> and the firm belief that somewhere out there<br>is a view that will make you laugh out loud with pure joy. 🌍</p>
+  <p style="margin-top:1rem; font-size:0.8rem; opacity:0.4;">No frequent flyer miles were harmed in the making of this page.</p>
+</footer>
+
+<script>
+  // Confetti launcher
+  function launchConfetti() {
+    const colors = ['#FFD93D','#FF6B6B','#6BCB77','#4D96FF','#f5a623','#ff6fd8','#ffffff'];
+    for (let i = 0; i < 120; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.top = '-20px';
+      el.style.background = colors[Math.floor(Math.random() * colors.length)];
+      el.style.width  = (Math.random() * 10 + 6) + 'px';
+      el.style.height = (Math.random() * 10 + 6) + 'px';
+      el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      el.style.animationDuration = (Math.random() * 2 + 2) + 's';
+      el.style.animationDelay = (Math.random() * 0.8) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }
+  }
+
+  // Animate cards on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.card, .dest-card, .tip-item, .packing-list li').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(30px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
+  });
+</script>
+
+</body>
+</html>
