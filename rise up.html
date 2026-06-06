@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RISE UP</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Exo+2:wght@300;400;800;900&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+:root {
+  --fire:#ff4400;
+  --gold:#ffc400;
+  --cyan:#00f0ff;
+  --dark:#080010;
+}
+
+body {
+  background:var(--dark);
+  font-family:'Exo 2',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+  overflow-y:auto;
+  cursor:none;
+}
+
+/* ── CUSTOM CURSOR ── */
+#cursor {
+  position:fixed;
+  width:18px;height:18px;
+  background:var(--gold);
+  border-radius:50%;
+  pointer-events:none;
+  z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:transform .08s, width .2s, height .2s;
+  mix-blend-mode:difference;
+}
+#cursor.big{width:50px;height:50px;}
+
+/* ── CANVAS BEHIND ── */
+#bgCanvas{position:fixed;inset:0;z-index:0;}
+
+/* ── NOISE OVERLAY ── */
+.noise {
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity:.35;
+}
+
+/* ── MAIN LAYOUT ── */
+.page {
+  position:relative;z-index:10;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding:40px 20px 60px;
+  gap:0;
+}
+
+/* ── HERO TITLE ── */
+.hero {
+  text-align:center;
+  margin-bottom:10px;
+  animation:heroIn 1s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes heroIn {
+  from{opacity:0;transform:translateY(-40px) scale(.9);}
+  to  {opacity:1;transform:translateY(0) scale(1);}
+}
+
+.hero-label {
+  font-size:11px;letter-spacing:6px;
+  color:var(--cyan);text-transform:uppercase;
+  margin-bottom:12px;
+  animation:heroIn 1s .1s both;
+}
+
+.hero-title {
+  font-family:'Black Ops One',cursive;
+  font-size:clamp(52px,15vw,110px);
+  line-height:.9;
+  letter-spacing:-2px;
+  background:linear-gradient(160deg, #fff 0%, var(--gold) 40%, var(--fire) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 30px #ff440066);
+  animation:heroIn 1s .2s both;
+}
+
+.hero-sub {
+  font-size:13px;letter-spacing:4px;color:rgba(255,255,255,.3);
+  text-transform:uppercase;margin-top:8px;
+  animation:heroIn 1s .3s both;
+}
+
+/* ── ENERGY ORB (big interactive circle) ── */
+.orb-wrap {
+  position:relative;
+  width:220px;height:220px;
+  margin:20px 0 10px;
+  cursor:none;
+  animation:heroIn 1s .4s both;
+}
+
+.orb-ring {
+  position:absolute;inset:0;
+  border-radius:50%;
+  border:1.5px solid rgba(255,196,0,.25);
+  animation:spinRing 8s linear infinite;
+}
+.orb-ring:nth-child(2){border-color:rgba(0,240,255,.2);animation-duration:12s;animation-direction:reverse;inset:10px;}
+.orb-ring:nth-child(3){border-color:rgba(255,68,0,.15);animation-duration:6s;inset:20px;}
+@keyframes spinRing{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+
+.orb {
+  position:absolute;
+  inset:30px;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,
+    #fff8 0%, #ffc40044 30%, #ff440022 60%, transparent 80%);
+  border:1px solid rgba(255,196,0,.4);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:4px;
+  box-shadow:
+    0 0 40px #ff440033,
+    0 0 80px #ffc40011,
+    inset 0 0 30px #ff440011;
+  transition:transform .2s, box-shadow .3s;
+  animation:orbPulse 3s ease-in-out infinite;
+}
+.orb:active{transform:scale(.93);}
+@keyframes orbPulse {
+  0%,100%{box-shadow:0 0 40px #ff440033,0 0 80px #ffc40011,inset 0 0 30px #ff440011;}
+  50%    {box-shadow:0 0 70px #ff440066,0 0 120px #ffc40033,inset 0 0 50px #ff440022;}
+}
+
+.orb-emoji{font-size:42px;filter:drop-shadow(0 0 12px #ffc400);transition:transform .3s;}
+.orb-tap{font-family:'Black Ops One',cursive;font-size:11px;letter-spacing:3px;color:rgba(255,255,255,.5);text-transform:uppercase;}
+
+/* energy counter */
+.energy-counter {
+  font-family:'Black Ops One',cursive;
+  font-size:28px;
+  color:var(--gold);
+  text-shadow:0 0 20px var(--gold);
+  margin-bottom:2px;
+  min-width:80px;text-align:center;
+  animation:heroIn 1s .5s both;
+}
+
+/* ── STREAK BAR ── */
+.streak-wrap {
+  width:min(90vw,380px);
+  animation:heroIn 1s .55s both;
+  margin-bottom:18px;
+}
+.streak-head {
+  display:flex;justify-content:space-between;
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(255,255,255,.3);margin-bottom:6px;
+}
+.streak-bar {
+  height:6px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden;
+  position:relative;
+}
+.streak-fill {
+  height:100%;border-radius:99px;
+  background:linear-gradient(90deg, var(--fire), var(--gold), var(--cyan));
+  width:0%;transition:width .8s cubic-bezier(.16,1,.3,1);
+  box-shadow:0 0 12px var(--gold);
+}
+
+/* ── WORD OF POWER ── */
+.word-box {
+  width:min(90vw,400px);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:20px;
+  background:rgba(255,255,255,.03);
+  backdrop-filter:blur(10px);
+  padding:22px 24px;
+  margin-bottom:18px;
+  text-align:center;
+  min-height:90px;
+  display:flex;align-items:center;justify-content:center;
+  animation:heroIn 1s .6s both;
+  position:relative;
+  overflow:hidden;
+}
+.word-box::before {
+  content:'';position:absolute;
+  top:0;left:-60%;width:40%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,196,0,.06),transparent);
+  animation:shimmer 3s linear infinite;
+}
+@keyframes shimmer{from{left:-60%;}to{left:120%;}}
+
+.word-text {
+  font-family:'Black Ops One',cursive;
+  font-size:clamp(16px,4vw,22px);
+  color:#fff;line-height:1.4;
+  text-shadow:0 0 20px rgba(255,196,0,.3);
+  animation:wordIn .4s cubic-bezier(.16,1,.3,1);
+}
+@keyframes wordIn{from{opacity:0;transform:scale(.85) translateY(8px);}to{opacity:1;transform:none;}}
+
+/* ── ACTION GRID ── */
+.grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  width:min(90vw,400px);
+  margin-bottom:18px;
+  animation:heroIn 1s .7s both;
+}
+
+.action-card {
+  border-radius:16px;
+  padding:16px 14px;
+  cursor:none;
+  position:relative;overflow:hidden;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.04);
+  transition:transform .18s, border-color .2s;
+  text-align:left;
+}
+.action-card:hover{transform:translateY(-3px);border-color:rgba(255,196,0,.3);}
+.action-card:active{transform:scale(.96);}
+.action-card::after {
+  content:'';position:absolute;
+  inset:0;border-radius:16px;
+  background:var(--glow,#ffc40022);
+  opacity:0;transition:opacity .2s;
+}
+.action-card:hover::after{opacity:1;}
+
+.ac-icon{font-size:26px;margin-bottom:8px;display:block;}
+.ac-title{font-family:'Black Ops One',cursive;font-size:13px;color:#fff;letter-spacing:.5px;margin-bottom:3px;}
+.ac-sub{font-size:11px;color:rgba(255,255,255,.35);line-height:1.4;}
+
+/* ── BREATHE SECTION ── */
+.breathe-section {
+  width:min(90vw,400px);
+  border-radius:20px;
+  background:rgba(0,240,255,.04);
+  border:1px solid rgba(0,240,255,.1);
+  padding:20px;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  animation:heroIn 1s .8s both;
+  margin-bottom:18px;
+}
+
+.breathe-label {
+  font-size:10px;letter-spacing:4px;text-transform:uppercase;
+  color:var(--cyan);opacity:.6;
+}
+
+.b-circle {
+  width:90px;height:90px;border-radius:50%;
+  border:2px solid rgba(0,240,255,.3);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:2px;
+  cursor:none;
+  position:relative;
+}
+.b-circle::before {
+  content:'';position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle, rgba(0,240,255,.1), transparent);
+  animation:bPulse 4s ease-in-out infinite;
+}
+@keyframes bPulse{
+  0%,100%{transform:scale(1);opacity:.5;}
+  50%{transform:scale(1.3);opacity:1;}
+}
+.b-circle.active::before{animation:bActive 4s ease-in-out infinite;}
+@keyframes bActive{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.6);}
+}
+.b-phase{font-family:'Black Ops One',cursive;font-size:13px;color:var(--cyan);letter-spacing:1px;}
+.b-count{font-size:28px;color:var(--cyan);font-weight:900;}
+
+.b-btn {
+  padding:10px 28px;border-radius:99px;
+  background:rgba(0,240,255,.1);border:1px solid rgba(0,240,255,.25);
+  color:var(--cyan);font-family:'Exo 2',sans-serif;font-weight:800;
+  font-size:12px;letter-spacing:3px;text-transform:uppercase;
+  cursor:none;transition:all .2s;
+}
+.b-btn:hover{background:rgba(0,240,255,.2);box-shadow:0 0 20px rgba(0,240,255,.2);}
+
+/* ── SONG PILL STRIP ── */
+.songs {
+  width:min(90vw,400px);
+  animation:heroIn 1s .9s both;
+}
+.songs-head {
+  font-size:10px;letter-spacing:4px;text-transform:uppercase;
+  color:rgba(255,255,255,.25);margin-bottom:10px;
+}
+.song-strip {display:flex;flex-wrap:wrap;gap:8px;}
+.song-pill {
+  padding:8px 16px;border-radius:99px;
+  border:1px solid rgba(255,255,255,.1);
+  background:transparent;
+  color:rgba(255,255,255,.5);
+  font-family:'Exo 2',sans-serif;font-weight:700;font-size:12px;
+  cursor:none;transition:all .2s;
+}
+.song-pill:hover,.song-pill.on{
+  background:rgba(255,68,0,.15);
+  border-color:rgba(255,68,0,.4);
+  color:var(--fire);
+  box-shadow:0 0 16px rgba(255,68,0,.2);
+}
+
+/* ── SPARKS canvas ── */
+#sparks{position:fixed;inset:0;z-index:5;pointer-events:none;}
+
+/* ── LEVEL UP FLASH ── */
+.level-flash {
+  position:fixed;inset:0;z-index:200;
+  background:radial-gradient(circle, #ffc40022, transparent 70%);
+  pointer-events:none;
+  opacity:0;
+  animation:none;
+}
+.level-flash.go{animation:flash .6s ease-out forwards;}
+@keyframes flash{from{opacity:1;}to{opacity:0;}}
+
+</style>
+</head>
+<body>
+<div id="cursor"></div>
+<canvas id="bgCanvas"></canvas>
+<canvas id="sparks"></canvas>
+<div class="noise"></div>
+<div class="level-flash" id="levelFlash"></div>
+
+<div class="page">
+
+  <div class="hero">
+    <p class="hero-label">⚡ Energy System</p>
+    <h1 class="hero-title">RISE<br>UP</h1>
+    <p class="hero-sub">You are built different</p>
+  </div>
+
+  <!-- Energy counter -->
+  <div class="energy-counter" id="energyNum">0</div>
+  <p style="font-size:10px;letter-spacing:3px;color:rgba(255,255,255,.2);text-transform:uppercase;margin-bottom:10px;">POWER POINTS</p>
+
+  <!-- Main ORB -->
+  <div class="orb-wrap">
+    <div class="orb-ring"></div>
+    <div class="orb-ring"></div>
+    <div class="orb-ring"></div>
+    <div class="orb" id="mainOrb" onclick="orbTap()">
+      <span class="orb-emoji" id="orbEmoji">⚡</span>
+      <span class="orb-tap">TAP ME</span>
+    </div>
+  </div>
+
+  <!-- streak -->
+  <div class="streak-wrap">
+    <div class="streak-head">
+      <span>POWER LEVEL</span>
+      <span id="levelLabel">LVL 1</span>
+    </div>
+    <div class="streak-bar"><div class="streak-fill" id="streakFill"></div></div>
+  </div>
+
+  <!-- Word of power -->
+  <div class="word-box">
+    <p class="word-text" id="wordText">TAP THE ORB TO IGNITE YOUR POWER ⚡</p>
+  </div>
+
+  <!-- Action grid -->
+  <div class="grid">
+    <div class="action-card" style="--glow:#ff440022;" onclick="doAction('🔥','MOVE YOUR BODY RIGHT NOW. 10 JUMPING JACKS. GO.')">
+      <span class="ac-icon">🏃</span>
+      <div class="ac-title">MOVE IT</div>
+      <div class="ac-sub">10 jumping jacks instantly shifts your state</div>
+    </div>
+    <div class="action-card" style="--glow:#ffc40022;" onclick="doAction('💧','DRINK WATER. RIGHT NOW. LOW ENERGY IS OFTEN JUST DEHYDRATION.')">
+      <span class="ac-icon">💧</span>
+      <div class="ac-title">HYDRATE</div>
+      <div class="ac-sub">One glass of water = instant brain fuel</div>
+    </div>
+    <div class="action-card" style="--glow:#00f0ff22;" onclick="doAction('☀️','STEP OUTSIDE. SUNLIGHT RESETS YOUR WHOLE NERVOUS SYSTEM.')">
+      <span class="ac-icon">☀️</span>
+      <div class="ac-title">SUNLIGHT</div>
+      <div class="ac-sub">5 min outside rewires your energy completely</div>
+    </div>
+    <div class="action-card" style="--glow:#ff2d7822;" onclick="doAction('🎵','BLAST YOUR FAVOURITE LOUD SONG. FULL VOLUME. RIGHT NOW.')">
+      <span class="ac-icon">🎵</span>
+      <div class="ac-title">MUSIC</div>
+      <div class="ac-sub">One banger song changes everything instantly</div>
+    </div>
+  </div>
+
+  <!-- Breathe -->
+  <div class="breathe-section">
+    <p class="breathe-label">✦ 4-4-4 Reset Breath</p>
+    <div class="b-circle" id="bCircle">
+      <span class="b-phase" id="bPhase">READY</span>
+      <span class="b-count" id="bCount">4</span>
+    </div>
+    <button class="b-btn" id="bBtn" onclick="toggleBreathe()">START</button>
+  </div>
+
+  <!-- Vibes -->
+  <div class="songs">
+    <p class="songs-head">⚡ Pick your vibe</p>
+    <div class="song-strip">
+      <div class="song-pill" onclick="vibeClick(this,'🦁 BEAST MODE ACTIVATED. NOTHING CAN STOP YOU.')">Beast Mode</div>
+      <div class="song-pill" onclick="vibeClick(this,'🌊 BREATHE. CALM IS YOUR SUPERPOWER.')">Calm</div>
+      <div class="song-pill" onclick="vibeClick(this,'💃 SHAKE IT OFF. DANCE FOR 30 SECONDS. NOW.')">Dance</div>
+      <div class="song-pill" onclick="vibeClick(this,'📵 PHONE DOWN. CLOSE EYES. TWO MINUTES.')">Detox</div>
+      <div class="song-pill" onclick="vibeClick(this,'🏆 YOU HAVE SURVIVED EVERY BAD DAY SO FAR. 100%.')">Champion</div>
+      <div class="song-pill" onclick="vibeClick(this,'🌙 REST IS NOT GIVING UP. REST IS RELOADING.')">Rest</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── CURSOR ──
+const cur = document.getElementById('cursor');
+document.addEventListener('mousemove',e=>{
+  cur.style.left=e.clientX+'px';
+  cur.style.top=e.clientY+'px';
+});
+document.addEventListener('mousedown',()=>cur.classList.add('big'));
+document.addEventListener('mouseup',()=>cur.classList.remove('big'));
+
+// ── BG CANVAS (particle field) ──
+const bgC = document.getElementById('bgCanvas');
+const bgX = bgC.getContext('2d');
+bgC.width = window.innerWidth; bgC.height = window.innerHeight;
+window.addEventListener('resize',()=>{bgC.width=window.innerWidth;bgC.height=window.innerHeight;});
+
+const stars = Array.from({length:120},()=>({
+  x:Math.random()*bgC.width, y:Math.random()*bgC.height,
+  r:Math.random()*1.2+.2,
+  a:Math.random(), da:(Math.random()-.5)*.008,
+  color:['#ffffff','#ffc400','#ff4400','#00f0ff'][Math.floor(Math.random()*4)]
+}));
+
+function drawBg(){
+  bgX.clearRect(0,0,bgC.width,bgC.height);
+  stars.forEach(s=>{
+    s.a+=s.da; if(s.a<0||s.a>1) s.da*=-1;
+    bgX.globalAlpha=s.a*.6;
+    bgX.fillStyle=s.color;
+    bgX.beginPath();bgX.arc(s.x,s.y,s.r,0,Math.PI*2);bgX.fill();
+  });
+  bgX.globalAlpha=1;
+  requestAnimationFrame(drawBg);
+}
+drawBg();
+
+// ── SPARKS CANVAS ──
+const spC = document.getElementById('sparks');
+const spX = spC.getContext('2d');
+spC.width=window.innerWidth;spC.height=window.innerHeight;
+window.addEventListener('resize',()=>{spC.width=window.innerWidth;spC.height=window.innerHeight;});
+
+let sparks=[];
+function addSparks(x,y,col='#ffc400',n=18){
+  for(let i=0;i<n;i++){
+    const ang=Math.random()*Math.PI*2;
+    const spd=2+Math.random()*6;
+    sparks.push({x,y,vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd,life:1,col,r:2+Math.random()*3});
+  }
+}
+function drawSparks(){
+  spX.clearRect(0,0,spC.width,spC.height);
+  sparks=sparks.filter(s=>s.life>0);
+  sparks.forEach(s=>{
+    spX.globalAlpha=s.life;
+    spX.fillStyle=s.col;
+    spX.beginPath();spX.arc(s.x,s.y,s.r,0,Math.PI*2);spX.fill();
+    s.x+=s.vx;s.y+=s.vy;s.vy+=.15;s.life-=.03;s.r*=.97;
+  });
+  spX.globalAlpha=1;
+  requestAnimationFrame(drawSparks);
+}
+drawSparks();
+
+// ── ENERGY SYSTEM ──
+let energy=0, level=1, maxE=100;
+const lvlWords=['ROOKIE','WARRIOR','LEGEND','CHAMPION','UNSTOPPABLE','GOD MODE'];
+const lvlEmojis=['⚡','🔥','💥','🚀','🏆','👑'];
+
+function addEnergy(n){
+  energy=Math.min(energy+n, maxE);
+  const pct=(energy/maxE)*100;
+  document.getElementById('streakFill').style.width=pct+'%';
+  animateNum(energy);
+  if(energy>=maxE){ levelUp(); }
+}
+
+function animateNum(target){
+  const el=document.getElementById('energyNum');
+  const cur=parseInt(el.textContent)||0;
+  const diff=target-cur; if(!diff) return;
+  let t=0; const dur=20;
+  const step=()=>{
+    t++;
+    el.textContent=Math.round(cur+(diff*(t/dur)));
+    if(t<dur)requestAnimationFrame(step);
+    else el.textContent=target;
+  };
+  requestAnimationFrame(step);
+}
+
+function levelUp(){
+  energy=0;level=Math.min(level+1,6);maxE=100+level*20;
+  document.getElementById('levelLabel').textContent='LVL '+level;
+  document.getElementById('orbEmoji').textContent=lvlEmojis[level-1]||'👑';
+  setWord('⬆️ LEVEL UP! YOU ARE NOW: '+lvlWords[Math.min(level-1,5)]);
+  const fl=document.getElementById('levelFlash');
+  fl.classList.remove('go');void fl.offsetWidth;fl.classList.add('go');
+  addSparks(window.innerWidth/2,window.innerHeight/2,'#ffc400',50);
+}
+
+// ── ORB TAP ──
+const affirmations=[
+  "YOU ARE BUILT FOR THIS. KEEP GOING. 🔥",
+  "EVERY REP COUNTS. EVERY BREATH MATTERS. ⚡",
+  "TIRED? GOOD. CHAMPIONS PUSH THROUGH. 💪",
+  "YOUR ONLY LIMIT IS THE ONE YOU SET. BREAK IT. 🚀",
+  "GET UP. SHOW UP. EVERY. SINGLE. DAY. 🏆",
+  "THE PAIN IS TEMPORARY. THE GLORY IS FOREVER. 💥",
+  "YOU WERE MADE FOR MORE THAN THIS MOMENT. 🌟",
+  "FEAR IS JUST EXCITEMENT WITHOUT BREATH. BREATHE. ⚡",
+  "ONE MORE. ALWAYS ONE MORE. YOU CAN DO IT. 🔥",
+  "TODAY YOU CHOOSE: EXCUSES OR RESULTS. CHOOSE. 💥",
+];
+
+let orbTaps=0;
+function orbTap(){
+  orbTaps++;
+  const orb=document.getElementById('mainOrb');
+  const rect=orb.getBoundingClientRect();
+  const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
+  addSparks(cx,cy,'#ffc400',22);
+  addEnergy(8);
+  setWord(affirmations[orbTaps%affirmations.length]);
+  orb.querySelector('.orb-emoji').style.transform='scale(1.3) rotate(15deg)';
+  setTimeout(()=>orb.querySelector('.orb-emoji').style.transform='',300);
+}
+
+function doAction(emoji,msg){
+  setWord(msg);addEnergy(12);
+  addSparks(window.innerWidth/2,200,'#ff4400',25);
+}
+
+function vibeClick(el,msg){
+  document.querySelectorAll('.song-pill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  setWord(msg);addEnergy(5);
+  addSparks(window.innerWidth/2,window.innerHeight/2,'#ff4400',12);
+}
+
+function setWord(txt){
+  const el=document.getElementById('wordText');
+  el.style.animation='none';void el.offsetWidth;
+  el.style.animation='wordIn .4s cubic-bezier(.16,1,.3,1)';
+  el.textContent=txt;
+}
+
+// ── BREATHE ──
+let breathing=false,bPhaseIdx=0,bTimer=null,bSec=4;
+const bPhases=['IN','HOLD','OUT','HOLD'];
+const bDurs=[4,4,4,4];
+
+function toggleBreathe(){
+  breathing=!breathing;
+  document.getElementById('bBtn').textContent=breathing?'STOP':'START';
+  const c=document.getElementById('bCircle');
+  if(breathing){c.classList.add('active');runBreath();}
+  else{c.classList.remove('active');clearTimeout(bTimer);document.getElementById('bPhase').textContent='READY';document.getElementById('bCount').textContent='4';bPhaseIdx=0;}
+}
+
+function runBreath(){
+  if(!breathing)return;
+  bSec=bDurs[bPhaseIdx];
+  document.getElementById('bPhase').textContent=bPhases[bPhaseIdx];
+  tick();
+}
+function tick(){
+  if(!breathing)return;
+  document.getElementById('bCount').textContent=bSec;
+  if(bSec>0){bSec--;bTimer=setTimeout(tick,1000);}
+  else{bPhaseIdx=(bPhaseIdx+1)%4;addEnergy(3);runBreath();}
+}
+
+// ── CLICK SPARKS anywhere ──
+document.addEventListener('click',e=>{
+  addSparks(e.clientX,e.clientY,'#ffc400',10);
+});
+
+// auto slow energy gain
+setInterval(()=>{if(energy<maxE)addEnergy(1);},4000);
+</script>
+</body>
+</html>
