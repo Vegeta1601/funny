@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lazy Office Worker</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@700&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:#1a1a2e;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  min-height:100vh;
+  font-family:'Comic Neue',cursive;
+  overflow:hidden;
+}
+
+.stage{
+  position:relative;
+  width:420px;height:480px;
+  background:#f5f0e8;
+  border-radius:16px;
+  border:4px solid #222;
+  overflow:hidden;
+  box-shadow:8px 8px 0 #222;
+}
+
+/* OFFICE BG */
+.wall{position:absolute;inset:0;background:linear-gradient(180deg,#d4e8f5 0%,#c8dff0 60%,#8b7355 60%,#6b5a3e 100%);}
+
+/* floor lines */
+.floor-line{position:absolute;bottom:0;left:0;width:100%;height:2px;background:#5a4a2e;opacity:.4;}
+
+/* window */
+.window{
+  position:absolute;top:30px;right:30px;
+  width:80px;height:90px;
+  background:linear-gradient(135deg,#87ceeb,#b8e4f9);
+  border:3px solid #222;border-radius:4px;
+}
+.window-cross{position:absolute;top:0;left:50%;width:3px;height:100%;background:#222;}
+.window-cross2{position:absolute;left:0;top:50%;width:100%;height:3px;background:#222;}
+.sun-outside{
+  position:absolute;top:8px;right:8px;
+  width:20px;height:20px;border-radius:50%;
+  background:#ffd700;
+  box-shadow:0 0 8px #ffd700;
+  animation:sunPulse 2s ease-in-out infinite alternate;
+}
+@keyframes sunPulse{from{box-shadow:0 0 6px #ffd700;}to{box-shadow:0 0 16px #ffd700;}}
+
+/* CALENDAR */
+.calendar{
+  position:absolute;top:28px;left:28px;
+  width:55px;height:55px;
+  background:#fff;border:3px solid #222;border-radius:6px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:'Bangers',cursive;
+}
+.cal-top{background:#e74c3c;width:100%;text-align:center;font-size:10px;color:#fff;padding:2px;border-radius:3px 3px 0 0;margin-bottom:2px;}
+.cal-num{font-size:24px;color:#222;line-height:1;}
+
+/* DESK */
+.desk{
+  position:absolute;
+  bottom:95px;left:30px;right:30px;
+  height:22px;
+  background:#8B6914;
+  border:3px solid #222;
+  border-radius:4px;
+}
+.desk::before{
+  content:'';position:absolute;
+  top:-48px;left:0;right:0;height:48px;
+  background:#a07820;
+  border:3px solid #222;
+  border-radius:4px 4px 0 0;
+}
+/* desk items */
+.monitor{
+  position:absolute;
+  bottom:140px;left:50%;transform:translateX(-50%);
+  width:90px;height:65px;
+  background:#222;border:3px solid #111;border-radius:6px;
+}
+.monitor-screen{
+  position:absolute;inset:5px;
+  background:#00ff41;
+  border-radius:3px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:8px;color:#111;font-weight:bold;
+  animation:screenBlink 3s ease-in-out infinite;
+  overflow:hidden;
+}
+@keyframes screenBlink{0%,90%{opacity:1;}95%{opacity:0;}100%{opacity:1;}}
+.monitor-stand{
+  position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);
+  width:14px;height:10px;background:#333;
+}
+.monitor-base{
+  position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);
+  width:30px;height:5px;background:#333;border-radius:2px;
+}
+.coffee{
+  position:absolute;
+  bottom:120px;right:65px;
+  width:22px;height:25px;
+  background:#8B4513;border:2.5px solid #222;
+  border-radius:0 0 6px 6px;
+}
+.coffee::before{
+  content:'☕';position:absolute;top:-14px;left:-4px;font-size:18px;
+}
+/* steam */
+.steam{
+  position:absolute;bottom:147px;right:68px;
+  animation:steamRise 1.5s ease-in-out infinite;
+  font-size:10px;opacity:.7;
+}
+@keyframes steamRise{
+  0%{transform:translateY(0);opacity:.7;}
+  100%{transform:translateY(-15px);opacity:0;}
+}
+
+/* PAPERS flying */
+.paper{
+  position:absolute;
+  width:35px;height:28px;
+  background:#fff;
+  border:2px solid #222;
+  border-radius:2px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:7px;color:#666;
+  animation:paperFly var(--d,1s) ease-in-out infinite;
+  transform-origin:center;
+  pointer-events:none;
+}
+@keyframes paperFly{
+  0%{transform:rotate(0deg) translate(0,0);opacity:0;}
+  20%{opacity:1;}
+  50%{transform:rotate(var(--r,20deg)) translate(var(--tx,30px),var(--ty,-60px));}
+  80%{opacity:.8;}
+  100%{transform:rotate(var(--r2,40deg)) translate(var(--tx2,60px),var(--ty2,20px));opacity:0;}
+}
+
+/* ══ CHARACTER ══ */
+.character{
+  position:absolute;
+  bottom:117px;
+  left:50%;transform:translateX(-55%);
+  width:100px;
+  animation:charBob 3s ease-in-out infinite;
+}
+@keyframes charBob{
+  0%,100%{transform:translateX(-55%) translateY(0);}
+  50%{transform:translateX(-55%) translateY(-3px);}
+}
+
+/* CHAIR */
+.chair{
+  position:absolute;
+  bottom:-30px;left:50%;transform:translateX(-50%);
+  width:70px;height:50px;
+}
+
+/* SPEECH BUBBLE */
+.bubble{
+  position:absolute;
+  top:-90px;left:50%;transform:translateX(-20%);
+  background:#fff;
+  border:3px solid #222;
+  border-radius:16px;
+  padding:6px 10px;
+  font-family:'Bangers',cursive;
+  font-size:13px;
+  color:#222;
+  white-space:nowrap;
+  opacity:0;
+  animation:bubblePop var(--bd,4s) ease-in-out infinite;
+  z-index:20;
+  box-shadow:3px 3px 0 #222;
+}
+.bubble::after{
+  content:'';position:absolute;
+  bottom:-12px;left:20px;
+  width:0;height:0;
+  border-left:8px solid transparent;
+  border-right:8px solid transparent;
+  border-top:12px solid #222;
+}
+.bubble::before{
+  content:'';position:absolute;
+  bottom:-8px;left:22px;
+  width:0;height:0;
+  border-left:6px solid transparent;
+  border-right:6px solid transparent;
+  border-top:10px solid #fff;
+  z-index:1;
+}
+@keyframes bubblePop{
+  0%{opacity:0;transform:translateX(-20%) scale(.5);}
+  10%{opacity:1;transform:translateX(-20%) scale(1.1);}
+  15%{transform:translateX(-20%) scale(1);}
+  70%{opacity:1;}
+  85%{opacity:0;}
+  100%{opacity:0;}
+}
+
+/* SWEAT DROPS */
+.sweat{
+  position:absolute;
+  font-size:14px;
+  animation:sweatDrop 1s ease-in infinite;
+  pointer-events:none;
+}
+@keyframes sweatDrop{
+  0%{transform:translateY(-5px);opacity:1;}
+  100%{transform:translateY(15px);opacity:0;}
+}
+
+/* REACTION STARS */
+.star-burst{
+  position:absolute;
+  font-size:20px;
+  animation:starPop .5s ease-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes starPop{
+  from{transform:scale(1) rotate(0deg);}
+  to{transform:scale(1.3) rotate(15deg);}
+}
+
+/* SCENE LABELS */
+.scene-label{
+  position:absolute;
+  top:12px;left:50%;transform:translateX(-50%);
+  font-family:'Bangers',cursive;
+  font-size:16px;
+  letter-spacing:2px;
+  color:#222;
+  background:#ffd700;
+  padding:3px 14px;
+  border:2.5px solid #222;
+  border-radius:20px;
+  white-space:nowrap;
+  z-index:30;
+  box-shadow:2px 2px 0 #222;
+  animation:labelPop 4s ease-in-out infinite;
+}
+@keyframes labelPop{
+  0%,100%{transform:translateX(-50%) rotate(-1deg);}
+  50%{transform:translateX(-50%) rotate(1deg);}
+}
+
+/* BOTTOM CAPTION */
+.caption{
+  margin-top:18px;
+  font-family:'Bangers',cursive;
+  font-size:22px;
+  letter-spacing:3px;
+  color:#ffd700;
+  text-shadow:2px 2px 0 #222;
+}
+
+/* SCENE transitions */
+.scene{
+  position:absolute;inset:0;
+  opacity:0;
+  transition:opacity .3s;
+  pointer-events:none;
+}
+.scene.active{opacity:1;pointer-events:all;}
+
+/* SCENE 1: Email ping */
+.email-notif{
+  position:absolute;
+  top:50px;right:20px;
+  background:#e74c3c;
+  color:#fff;
+  border:2.5px solid #222;
+  border-radius:8px;
+  padding:5px 10px;
+  font-size:11px;font-weight:bold;
+  animation:notifBounce .3s ease-in-out infinite alternate;
+  z-index:25;
+}
+@keyframes notifBounce{from{transform:scale(1);}to{transform:scale(1.08);}  }
+
+/* SCENE 2: STRESS lines */
+.stress-line{
+  position:absolute;
+  background:#222;
+  border-radius:2px;
+  animation:stressAnim .15s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes stressAnim{from{opacity:.3;}to{opacity:1;}}
+
+/* SCENE 3: ZZZ */
+.zzz{
+  position:absolute;
+  font-family:'Bangers',cursive;
+  color:#4a90d9;
+  animation:zzzFloat 1.5s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes zzzFloat{
+  0%{transform:translate(0,0) scale(1);opacity:1;}
+  100%{transform:translate(20px,-40px) scale(1.5);opacity:0;}
+}
+
+/* nav dots */
+.dots{
+  display:flex;gap:10px;margin-top:14px;
+}
+.dot{
+  width:10px;height:10px;border-radius:50%;
+  background:rgba(255,255,255,.3);
+  border:2px solid rgba(255,255,255,.5);
+  cursor:pointer;transition:background .2s;
+}
+.dot.active{background:#ffd700;border-color:#ffd700;}
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+
+  <!-- SCENE 1: MONDAY EMAIL -->
+  <div class="scene active" id="s1">
+    <div class="wall"></div>
+    <div class="window"><div class="window-cross"></div><div class="window-cross2"></div><div class="sun-outside"></div></div>
+    <div class="calendar"><div class="cal-top">MON</div><div class="cal-num">😭</div></div>
+    <div class="desk"></div>
+    <div class="monitor">
+      <div class="monitor-screen">📧 999+ EMAILS</div>
+      <div class="monitor-stand"></div><div class="monitor-base"></div>
+    </div>
+    <div class="coffee"><div class="steam">〰</div></div>
+    <div class="email-notif">📧 +999 NEW EMAILS!!!</div>
+
+    <!-- character -->
+    <div class="character" style="bottom:117px;">
+      <svg viewBox="0 0 100 130" width="100" height="130" xmlns="http://www.w3.org/2000/svg">
+        <!-- body / suit -->
+        <rect x="28" y="68" width="44" height="45" rx="8" fill="#2c3e6b" stroke="#222" stroke-width="2.5"/>
+        <!-- tie -->
+        <polygon points="50,70 45,85 50,100 55,85" fill="#e74c3c" stroke="#222" stroke-width="1.5"/>
+        <!-- shirt collar -->
+        <polygon points="42,68 50,78 58,68" fill="#fff" stroke="#222" stroke-width="1.5"/>
+        <!-- arms - dramatic raise -->
+        <rect x="4"  y="65" width="28" height="12" rx="6" fill="#2c3e6b" stroke="#222" stroke-width="2" transform="rotate(-50,18,71)"/>
+        <rect x="68" y="65" width="28" height="12" rx="6" fill="#2c3e6b" stroke="#222" stroke-width="2" transform="rotate(50,82,71)"/>
+        <!-- hands -->
+        <circle cx="10" cy="52" r="9" fill="#fcd29f" stroke="#222" stroke-width="2"/>
+        <circle cx="90" cy="52" r="9" fill="#fcd29f" stroke="#222" stroke-width="2"/>
+        <!-- neck -->
+        <rect x="43" y="55" width="14" height="14" rx="4" fill="#fcd29f" stroke="#222" stroke-width="2"/>
+        <!-- HEAD - big round -->
+        <circle cx="50" cy="38" r="32" fill="#fcd29f" stroke="#222" stroke-width="2.5"/>
+        <!-- hair -->
+        <path d="M18,28 Q20,8 50,10 Q80,8 82,28" fill="#3d2b1f" stroke="#222" stroke-width="2"/>
+        <!-- EYES - wide shock -->
+        <circle cx="37" cy="35" r="9" fill="#fff" stroke="#222" stroke-width="2"/>
+        <circle cx="63" cy="35" r="9" fill="#fff" stroke="#222" stroke-width="2"/>
+        <circle cx="37" cy="35" r="5" fill="#1a1a1a"/>
+        <circle cx="63" cy="35" r="5" fill="#1a1a1a"/>
+        <!-- tiny pupils -->
+        <circle cx="39" cy="33" r="2" fill="#fff"/>
+        <circle cx="65" cy="33" r="2" fill="#fff"/>
+        <!-- MOUTH open shock -->
+        <ellipse cx="50" cy="52" rx="10" ry="8" fill="#c0392b" stroke="#222" stroke-width="2"/>
+        <ellipse cx="50" cy="55" rx="6" ry="4" fill="#7f0000"/>
+        <!-- eyebrows raised high -->
+        <path d="M28,22 Q37,16 46,22" fill="none" stroke="#3d2b1f" stroke-width="3" stroke-linecap="round"/>
+        <path d="M54,22 Q63,16 72,22" fill="none" stroke="#3d2b1f" stroke-width="3" stroke-linecap="round"/>
+        <!-- sweat -->
+        <ellipse cx="82" cy="28" rx="4" ry="6" fill="#4a90d9" stroke="#222" stroke-width="1.5"/>
+        <ellipse cx="16" cy="32" rx="3" ry="5" fill="#4a90d9" stroke="#222" stroke-width="1.5"/>
+        <!-- legs -->
+        <rect x="33" y="110" width="14" height="18" rx="4" fill="#1a2540" stroke="#222" stroke-width="2"/>
+        <rect x="53" y="110" width="14" height="18" rx="4" fill="#1a2540" stroke="#222" stroke-width="2"/>
+        <!-- shoes -->
+        <ellipse cx="40" cy="128" rx="10" ry="5" fill="#222"/>
+        <ellipse cx="60" cy="128" rx="10" ry="5" fill="#222"/>
+      </svg>
+      <!-- bubble -->
+      <div class="bubble" style="--bd:0s;animation:bubblePop 4s .5s ease-in-out infinite;">😱 IT'S ONLY MONDAY!!</div>
+    </div>
+    <!-- flying papers -->
+    <div class="paper" style="bottom:170px;left:80px;--d:2s;--r:30deg;--tx:40px;--ty:-80px;--r2:60deg;--tx2:80px;--ty2:10px;">📄</div>
+    <div class="paper" style="bottom:175px;left:120px;--d:2.5s;animation-delay:.5s;--r:-20deg;--tx:-30px;--ty:-60px;--r2:-50deg;--tx2:-70px;--ty2:20px;">📄</div>
+    <div class="paper" style="bottom:165px;left:160px;--d:1.8s;animation-delay:1s;--r:40deg;--tx:20px;--ty:-90px;--r2:70deg;--tx2:50px;--ty2:0px;">📄</div>
+    <!-- stress lines -->
+    <div class="stress-line" style="top:60px;right:110px;width:20px;height:3px;transform:rotate(-30deg);"></div>
+    <div class="stress-line" style="top:55px;right:100px;width:15px;height:3px;transform:rotate(20deg);"></div>
+    <div class="stress-line" style="top:70px;right:115px;width:18px;height:3px;transform:rotate(-10deg);"></div>
+    <div class="scene-label">SCENE 1: 999 UNREAD EMAILS 📧</div>
+  </div>
+
+  <!-- SCENE 2: MEETING CALLED -->
+  <div class="scene" id="s2">
+    <div class="wall"></div>
+    <div class="window"><div class="window-cross"></div><div class="window-cross2"></div><div class="sun-outside"></div></div>
+    <div class="calendar"><div class="cal-top">TUE</div><div class="cal-num">📅</div></div>
+    <div class="desk"></div>
+    <div class="monitor">
+      <div class="monitor-screen" style="background:#ff4444;color:#fff;">⚠️ URGENT MTG</div>
+      <div class="monitor-stand"></div><div class="monitor-base"></div>
+    </div>
+    <div class="coffee"></div>
+
+    <!-- character FAINT -->
+    <div class="character" style="bottom:117px;animation:faint 2s ease-in-out infinite;">
+      <svg viewBox="0 0 100 130" width="100" height="130" xmlns="http://www.w3.org/2000/svg">
+        <rect x="28" y="68" width="44" height="45" rx="8" fill="#2c3e6b" stroke="#222" stroke-width="2.5"/>
+        <polygon points="50,70 45,85 50,100 55,85" fill="#e74c3c" stroke="#222" stroke-width="1.5"/>
+        <polygon points="42,68 50,78 58,68" fill="#fff" stroke="#222" stroke-width="1.5"/>
+        <!-- arms drooping -->
+        <rect x="10" y="75" width="22" height="10" rx="5" fill="#2c3e6b" stroke="#222" stroke-width="2" transform="rotate(30,21,80)"/>
+        <rect x="68" y="75" width="22" height="10" rx="5" fill="#2c3e6b" stroke="#222" stroke-width="2" transform="rotate(-30,79,80)"/>
+        <circle cx="14" cy="86" r="8" fill="#fcd29f" stroke="#222" stroke-width="2"/>
+        <circle cx="86" cy="86" r="8" fill="#fcd29f" stroke="#222" stroke-width="2"/>
+        <rect x="43" y="55" width="14" height="14" rx="4" fill="#fcd29f" stroke="#222" stroke-width="2"/>
+        <circle cx="50" cy="38" r="32" fill="#fcd29f" stroke="#222" stroke-width="2.5"/>
+        <path d="M18,28 Q20,8 50,10 Q80,8 82,28" fill="#3d2b1f" stroke="#222" stroke-width="2"/>
+        <!-- X eyes = fainted -->
+        <text x="28" y="42" font-size="18" font-weight="bold" fill="#222" font-family="Arial">✕</text>
+        <text x="54" y="42" font-size="18" font-weight="bold" fill="#222" font-family="Arial">✕</text>
+        <!-- mouth flat dead -->
+        <path d="M38,52 Q50,48 62,52" fill="none" stroke="#222" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- spiral on cheeks -->
+        <text x="16" y="36" font-size="12" fill="#e74c3c">@</text>
+        <text x="72" y="36" font-size="12" fill="#e74c3c">@</text>
+        <rect x="33" y="110" width="14" height="18" rx="4" fill="#1a2540" stroke="#222" stroke-width="2"/>
+        <rect x="53" y="110" width="14" height="18" rx="4" fill="#1a2540" stroke="#222" stroke-width="2"/>
+        <ellipse cx="40" cy="128" rx="10" ry="5" fill="#222"/>
+        <ellipse cx="60" cy="128" rx="10" ry="5" fill="#222"/>
+      </svg>
+      <div class="bubble" style="animation:bubblePop 4s .3s ease-in-out infinite;">💀 ANOTHER MEETING?!</div>
+    </div>
+    @keyframes faint{0%,100%{transform:translateX(-55%) rotate(0deg);}50%{transform:translateX(-55%) rotate(-8deg) translateY(5px);}}
+
+    <!-- ZZZ floating -->
+    <div class="zzz" style="bottom:200px;left:240px;font-size:22px;animation-delay:0s;">Z</div>
+    <div class="zzz" style="bottom:210px;left:255px;font-size:30px;animation-delay:.5s;">Z</div>
+    <div class="zzz" style="bottom:215px;left:268px;font-size:38px;animation-delay:1s;">Z</div>
+
+    <!-- star bursts -->
+    <div class="star-burst" style="top:80px;left:60px;">💫</div>
+    <div class="star-burst" style="top:90px;right:70px;animation-delay:.3s;">⭐</div>
+    <div class="star-burst" style="top:70px;right:90px;animation-delay:.6s;">✨</div>
+
+    <div class="scene-label">SCENE 2: "QUICK SYNC" = 2 HRS 📅</div>
+  </div>
+
+  <!-- SCENE 3: DEADLINE IN 5 MIN -->
+  <div class="scene" id="s3">
+    <div class="wall" style="background:linear-gradient(180deg,#ff6b6b 0%,#ff4444 40%,#8b7355 60%,#6b5a3e 100%);"></div>
+    <div class="window"><div class="window-cross"></div><div class="window-cross2"></div></div>
+    <div class="desk"></div>
+    <div class="monitor">
+      <div class="monitor-screen" style="background:#ff0000;color:#fff;font-size:7px;animation:screenBlink .3s infinite;">⏰ DUE IN 5MIN</div>
+      <div class="monitor-stand"></div><div class="monitor-base"></div>
+    </div>
+
+    <!-- character PANIC RUN -->
+    <div class="character" style="bottom:117px;animation:panicRun .3s ease-in-out infinite alternate;">
+      <svg viewBox="0 0 100 130" width="100" height="130" xmlns="http://www.w3.org/2000/svg">
+        <rect x="28" y="68" width="44" height="45" rx="8" fill="#2c3e6b" stroke="#222" stroke-width="2.5"/>
+        <polygon points="50,70 45,85 50,100 55,85" fill="#e74c3c" stroke="#222" stroke-width="1.5"/>
+        <polygon points="42,68 50,78 58,68" fill="#fff" stroke="#222" stroke-width="1.5"/>
+        <!-- arms flailing -->
+        <rect x="0" y="55" width="28" height="11" rx="5" fill="#2c3e6b" stroke="#222" stroke-width="2" transform="rotate(-70,14,60)"/>
+        <rect x="72" y="55" width="28" height="11" rx="5" fill="#2c3e6b" stroke="#222" stroke-width="2" transform="rotate(70,86,60)"/>
+        <circle cx="5"  cy="40" r="9" fill="#fcd29f" stroke="#222" stroke-width="2"/>
+        <circle cx="95" cy="40" r="9" fill="#fcd29f" stroke="#222" stroke-width="2"/>
+        <rect x="43" y="55" width="14" height="14" rx="4" fill="#fcd29f" stroke="#222" stroke-width="2"/>
+        <circle cx="50" cy="38" r="32" fill="#fcd29f" stroke="#222" stroke-width="2.5"/>
+        <path d="M18,28 Q20,8 50,10 Q80,8 82,28" fill="#3d2b1f" stroke="#222" stroke-width="2"/>
+        <!-- spiral panic eyes -->
+        <circle cx="37" cy="35" r="9" fill="#fff" stroke="#222" stroke-width="2"/>
+        <circle cx="63" cy="35" r="9" fill="#fff" stroke="#222" stroke-width="2"/>
+        <text x="29" y="40" font-size="14" fill="#e74c3c">@</text>
+        <text x="55" y="40" font-size="14" fill="#e74c3c">@</text>
+        <!-- trembling mouth -->
+        <path d="M36,52 Q50,62 64,52" fill="#c0392b" stroke="#222" stroke-width="2"/>
+        <!-- eyebrows panic down-in -->
+        <path d="M28,24 Q37,28 46,24" fill="none" stroke="#3d2b1f" stroke-width="3" stroke-linecap="round"/>
+        <path d="M54,24 Q63,28 72,24" fill="none" stroke="#3d2b1f" stroke-width="3" stroke-linecap="round"/>
+        <!-- lots of sweat -->
+        <ellipse cx="82" cy="22" rx="4" ry="7" fill="#4a90d9" stroke="#222" stroke-width="1.5"/>
+        <ellipse cx="16" cy="26" rx="3" ry="6" fill="#4a90d9" stroke="#222" stroke-width="1.5"/>
+        <ellipse cx="88" cy="38" rx="3" ry="5" fill="#4a90d9" stroke="#222" stroke-width="1.5"/>
+        <!-- legs running -->
+        <rect x="30" y="110" width="14" height="18" rx="4" fill="#1a2540" stroke="#222" stroke-width="2" transform="rotate(-20,37,119)"/>
+        <rect x="56" y="110" width="14" height="18" rx="4" fill="#1a2540" stroke="#222" stroke-width="2" transform="rotate(20,63,119)"/>
+        <ellipse cx="34" cy="128" rx="10" ry="5" fill="#222" transform="rotate(-20,34,128)"/>
+        <ellipse cx="66" cy="128" rx="10" ry="5" fill="#222" transform="rotate(20,66,128)"/>
+      </svg>
+      <div class="bubble" style="animation:bubblePop 2s .2s ease-in-out infinite;background:#ff4444;color:#fff;">🔥 DEADLINE IN 5MIN!!</div>
+    </div>
+    @keyframes panicRun{from{transform:translateX(-55%) rotate(-5deg);}to{transform:translateX(-55%) rotate(5deg) translateY(-6px);}}
+
+    <!-- flying stuff -->
+    <div class="paper" style="bottom:170px;left:60px;--d:1s;--r:50deg;--tx:60px;--ty:-100px;--r2:90deg;--tx2:100px;--ty2:30px;">💼</div>
+    <div class="paper" style="bottom:180px;left:280px;--d:1.2s;animation-delay:.3s;--r:-40deg;--tx:-50px;--ty:-80px;--r2:-80deg;--tx2:-90px;--ty2:10px;">📊</div>
+    <div class="paper" style="bottom:160px;left:180px;--d:.9s;animation-delay:.6s;--r:30deg;--tx:40px;--ty:-70px;--r2:60deg;--tx2:70px;--ty2:20px;">⌨️</div>
+
+    <div class="star-burst" style="top:55px;left:30px;font-size:28px;">💥</div>
+    <div class="star-burst" style="top:60px;right:30px;animation-delay:.4s;font-size:24px;">🔥</div>
+    <div class="star-burst" style="top:40px;left:50%;font-size:20px;animation-delay:.2s;">⚡</div>
+
+    <div class="scene-label" style="background:#ff4444;color:#fff;">SCENE 3: DEADLINE WAS YESTERDAY 💀</div>
+  </div>
+
+  <!-- NAV ARROWS -->
+  <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:30;">
+    <div class="dot active" onclick="goScene(0)" id="d0"></div>
+    <div class="dot" onclick="goScene(1)" id="d1"></div>
+    <div class="dot" onclick="goScene(2)" id="d2"></div>
+  </div>
+
+</div>
+
+<div class="caption">😂 CORPORATE LIFE BE LIKE...</div>
+<div class="dots" style="display:none;"></div>
+
+<script>
+let cur = 0;
+const scenes = ['s1','s2','s3'];
+const dots = ['d0','d1','d2'];
+let auto;
+
+function goScene(n){
+  document.getElementById(scenes[cur]).classList.remove('active');
+  document.getElementById(dots[cur]).classList.remove('active');
+  cur = n;
+  document.getElementById(scenes[cur]).classList.add('active');
+  document.getElementById(dots[cur]).classList.add('active');
+  clearInterval(auto);
+  auto = setInterval(nextScene, 4000);
+}
+
+function nextScene(){ goScene((cur+1)%3); }
+auto = setInterval(nextScene, 4000);
+
+// tap stage to advance
+document.getElementById('stage').addEventListener('click', nextScene);
+</script>
+</body>
+</html>
