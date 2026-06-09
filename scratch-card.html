@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secret Gift</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Montserrat:wght@300;400;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    background: #f7f0e8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Montserrat', sans-serif;
+    padding: 20px;
+  }
+
+  .envelope {
+    background: linear-gradient(145deg, #1a1a2e, #2d2d44);
+    border-radius: 4px;
+    padding: 6px 28px 12px;
+    margin-bottom: 20px;
+    text-align: center;
+    letter-spacing: 3px;
+  }
+  .envelope span {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: #c9a96e;
+    font-size: 13px;
+  }
+
+  .card-wrapper { position: relative; width: 360px; }
+
+  .card {
+    background: linear-gradient(160deg, #1a1a2e 0%, #2d2d44 60%, #1a1a2e 100%);
+    border-radius: 12px;
+    padding: 32px 28px 28px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(201,169,110,0.2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 40%, rgba(201,169,110,0.06) 50%, transparent 60%);
+    animation: shimmer 4s infinite;
+    pointer-events: none;
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
+  }
+
+  .brand-top { text-align: center; margin-bottom: 6px; }
+
+  .brand-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 30px;
+    font-weight: 300;
+    letter-spacing: 6px;
+    color: #c9a96e;
+    text-transform: uppercase;
+  }
+
+  .brand-tagline {
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: rgba(201,169,110,0.5);
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 16px 0 14px;
+  }
+  .divider-line { flex: 1; height: 1px; background: rgba(201,169,110,0.3); }
+  .divider-diamond { width: 6px; height: 6px; background: #c9a96e; transform: rotate(45deg); }
+
+  .gift-label {
+    text-align: center;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  /* Two scratch panels side by side */
+  .panels {
+    display: flex;
+    gap: 12px;
+  }
+
+  .panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .panel-label {
+    text-align: center;
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: rgba(201,169,110,0.5);
+    text-transform: uppercase;
+  }
+
+  .scratch-container {
+    position: relative;
+    width: 100%;
+    height: 170px;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: crosshair;
+    touch-action: none;
+  }
+
+  .gift-reveal {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid rgba(201,169,110,0.3);
+    border-radius: 8px;
+  }
+
+  /* Handbag panel */
+  .gift-reveal.bag-panel {
+    background: linear-gradient(135deg, #0e0e1a, #1e1e2e);
+  }
+
+  /* Amazon panel */
+  .gift-reveal.amazon-panel {
+    background: linear-gradient(135deg, #0e1a0e, #1a2e1e);
+  }
+
+  .prize-icon {
+    font-size: 42px;
+    animation: float 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 14px rgba(201,169,110,0.4));
+  }
+
+  .amazon-icon {
+    font-size: 38px;
+    animation: float 3s ease-in-out infinite 0.5s;
+    filter: drop-shadow(0 0 14px rgba(255,153,0,0.5));
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
+  .prize-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    font-weight: 300;
+    color: #c9a96e;
+    letter-spacing: 1px;
+    text-align: center;
+    line-height: 1.4;
+    padding: 0 4px;
+  }
+
+  .prize-name.amazon-color { color: #ff9900; }
+
+  .prize-sub {
+    font-size: 7px;
+    letter-spacing: 2px;
+    color: rgba(201,169,110,0.55);
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  .prize-sub.amazon-sub { color: rgba(255,153,0,0.6); }
+
+  .voucher-code {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    color: #fff;
+    background: rgba(255,153,0,0.18);
+    border: 1px dashed rgba(255,153,0,0.6);
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s;
+    user-select: all;
+  }
+  .voucher-code:hover { background: rgba(255,153,0,0.28); }
+  .voucher-code::after {
+    content: '📋';
+    font-size: 10px;
+    margin-left: 5px;
+  }
+  .voucher-code.copied {
+    border-color: #4caf50;
+    background: rgba(76,175,80,0.18);
+    color: #7dff82;
+  }
+
+  canvas {
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    z-index: 10;
+  }
+
+  .scratch-hint {
+    text-align: center;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    margin-top: 14px;
+  }
+
+  .confetti-burst {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    display: none;
+  }
+
+  .message {
+    text-align: center;
+    margin-top: 18px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: rgba(201,169,110,0.7);
+    letter-spacing: 1px;
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+  .message.show { opacity: 1; }
+
+  .reset-btn {
+    margin-top: 14px;
+    background: none;
+    border: 1px solid rgba(201,169,110,0.4);
+    color: rgba(201,169,110,0.6);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 8px 20px;
+    border-radius: 2px;
+    cursor: pointer;
+    display: none;
+    transition: all 0.3s;
+  }
+  .reset-btn:hover { background: rgba(201,169,110,0.1); color: #c9a96e; }
+  .reset-btn.show { display: block; }
+</style>
+</head>
+<body>
+
+<div class="envelope"><span>✦ Your Secret Gift Awaits ✦</span></div>
+
+<div class="card-wrapper">
+  <div class="card">
+    <div class="brand-top">
+      <div class="brand-name">Secret Gift</div>
+      <div class="brand-tagline">Two Surprises Inside</div>
+    </div>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-diamond"></div>
+      <div class="divider-line"></div>
+    </div>
+
+    <div class="gift-label">✦ scratch both panels to reveal ✦</div>
+
+    <div class="panels">
+
+      <!-- Panel 1: Allon Solly Handbag -->
+      <div class="panel">
+        <div class="panel-label">Gift 1</div>
+        <div class="scratch-container" id="scratchContainer1">
+          <div class="gift-reveal bag-panel">
+            <div class="prize-icon">👜</div>
+            <div class="prize-name">Allon Solly<br>Women's Handbag</div>
+            <div class="prize-sub">Luxury Collection</div>
+          </div>
+          <canvas id="scratchCanvas1"></canvas>
+        </div>
+      </div>
+
+      <!-- Panel 2: Amazon Voucher -->
+      <div class="panel">
+        <div class="panel-label">Gift 2</div>
+        <div class="scratch-container" id="scratchContainer2">
+          <div class="gift-reveal amazon-panel">
+            <div class="amazon-icon">🎁</div>
+            <div class="prize-name amazon-color">Amazon<br>Gift Voucher</div>
+            <div class="voucher-code" id="voucherCode">AMZN-7X4K-9QLP</div>
+            <div class="prize-sub amazon-sub">Use at checkout ↗</div>
+          </div>
+          <canvas id="scratchCanvas2"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="scratch-hint" id="hint">☝ scratch here with your finger or mouse</div>
+  </div>
+</div>
+
+<div class="message" id="message">
+  🎉 Both gifts are yours! Enjoy your surprises.<br>
+  <span style="font-size:11px; letter-spacing:2px;">With love ✦</span>
+</div>
+
+<button class="reset-btn" id="resetBtn" onclick="resetCards()">↺ Scratch Again</button>
+
+<canvas class="confetti-burst" id="confetti"></canvas>
+
+<script>
+  const panels = [
+    { container: 'scratchContainer1', canvas: 'scratchCanvas1' },
+    { container: 'scratchContainer2', canvas: 'scratchCanvas2' },
+  ];
+
+  const state = panels.map(() => ({ isDrawing: false, revealed: false, ctx: null, canvas: null, container: null, totalPixels: 0 }));
+
+  const hint = document.getElementById('hint');
+  const message = document.getElementById('message');
+  const resetBtn = document.getElementById('resetBtn');
+
+  let revealedCount = 0;
+
+  function initPanel(i) {
+    const s = state[i];
+    s.container = document.getElementById(panels[i].container);
+    s.canvas = document.getElementById(panels[i].canvas);
+    s.ctx = s.canvas.getContext('2d');
+    s.revealed = false;
+
+    const rect = s.container.getBoundingClientRect();
+    s.canvas.width = rect.width;
+    s.canvas.height = rect.height;
+
+    // Gold foil for bag, orange foil for amazon
+    const grad = s.ctx.createLinearGradient(0, 0, s.canvas.width, s.canvas.height);
+    if (i === 0) {
+      grad.addColorStop(0, '#c9a96e');
+      grad.addColorStop(0.4, '#e8c98a');
+      grad.addColorStop(1, '#b8923e');
+    } else {
+      grad.addColorStop(0, '#ff9900');
+      grad.addColorStop(0.4, '#ffb84d');
+      grad.addColorStop(1, '#e68a00');
+    }
+    s.ctx.fillStyle = grad;
+    s.ctx.fillRect(0, 0, s.canvas.width, s.canvas.height);
+
+    // Checkerboard
+    s.ctx.globalAlpha = 0.12;
+    for (let x = 0; x < s.canvas.width; x += 14) {
+      for (let y = 0; y < s.canvas.height; y += 14) {
+        s.ctx.fillStyle = x % 28 === 0 ? '#fff' : (i === 0 ? '#8b6914' : '#994400');
+        s.ctx.fillRect(x, y, 6, 6);
+      }
+    }
+    s.ctx.globalAlpha = 1;
+
+    s.ctx.fillStyle = i === 0 ? 'rgba(100,70,10,0.5)' : 'rgba(120,60,0,0.5)';
+    s.ctx.font = 'bold 9px Montserrat, sans-serif';
+    s.ctx.textAlign = 'center';
+    s.ctx.fillText('✦ SCRATCH ✦', s.canvas.width / 2, s.canvas.height / 2);
+
+    s.ctx.globalCompositeOperation = 'destination-out';
+    s.totalPixels = s.canvas.width * s.canvas.height;
+  }
+
+  function getPos(e, canvas) {
+    const rect = canvas.getBoundingClientRect();
+    if (e.touches) return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+
+  function scratchAt(i, x, y) {
+    const s = state[i];
+    s.ctx.beginPath();
+    s.ctx.arc(x, y, 26, 0, Math.PI * 2);
+    s.ctx.fill();
+  }
+
+  function checkReveal(i) {
+    const s = state[i];
+    if (s.revealed) return;
+    const d = s.ctx.getImageData(0, 0, s.canvas.width, s.canvas.height).data;
+    let t = 0;
+    for (let j = 3; j < d.length; j += 4) if (d[j] < 128) t++;
+    if (t / s.totalPixels > 0.55) {
+      s.revealed = true;
+      revealedCount++;
+      setTimeout(() => {
+        s.ctx.clearRect(0, 0, s.canvas.width, s.canvas.height);
+        if (revealedCount === 2) {
+          hint.textContent = '✦ All gifts revealed ✦';
+          hint.style.color = 'rgba(201,169,110,0.7)';
+          message.classList.add('show');
+          resetBtn.classList.add('show');
+          launchConfetti();
+        } else {
+          hint.textContent = '✦ One more to go! ✦';
+          hint.style.color = 'rgba(201,169,110,0.6)';
+        }
+      }, 300);
+    }
+  }
+
+  panels.forEach((p, i) => {
+    const canvas = document.getElementById(p.canvas);
+    canvas.addEventListener('mousedown', e => { state[i].isDrawing = true; const pos = getPos(e, canvas); scratchAt(i, pos.x, pos.y); });
+    canvas.addEventListener('mousemove', e => { if (!state[i].isDrawing) return; const pos = getPos(e, canvas); scratchAt(i, pos.x, pos.y); checkReveal(i); });
+    canvas.addEventListener('mouseup', () => state[i].isDrawing = false);
+    canvas.addEventListener('mouseleave', () => state[i].isDrawing = false);
+    canvas.addEventListener('touchstart', e => { e.preventDefault(); state[i].isDrawing = true; const pos = getPos(e, canvas); scratchAt(i, pos.x, pos.y); }, { passive: false });
+    canvas.addEventListener('touchmove', e => { e.preventDefault(); if (!state[i].isDrawing) return; const pos = getPos(e, canvas); scratchAt(i, pos.x, pos.y); checkReveal(i); }, { passive: false });
+    canvas.addEventListener('touchend', () => state[i].isDrawing = false);
+  });
+
+  function resetCards() {
+    revealedCount = 0;
+    message.classList.remove('show');
+    resetBtn.classList.remove('show');
+    hint.textContent = '☝ scratch here with your finger or mouse';
+    hint.style.color = '';
+    panels.forEach((_, i) => initPanel(i));
+  }
+
+  function launchConfetti() {
+    const cc = document.getElementById('confetti');
+    cc.style.display = 'block';
+    cc.width = window.innerWidth;
+    cc.height = window.innerHeight;
+    const cx = cc.getContext('2d');
+    const particles = Array.from({ length: 100 }, () => ({
+      x: Math.random() * cc.width,
+      y: -10,
+      r: Math.random() * 6 + 3,
+      d: Math.random() * 2.5 + 1,
+      color: ['#c9a96e','#e8c98a','#ff9900','#ffb84d','#fff','#f0d090'][Math.floor(Math.random()*6)],
+      tilt: Math.random() * 10 - 5,
+      tiltAngle: 0,
+      tiltSpeed: Math.random() * 0.1 + 0.05
+    }));
+    let frame = 0;
+    function draw() {
+      cx.clearRect(0, 0, cc.width, cc.height);
+      particles.forEach(p => {
+        cx.beginPath();
+        cx.lineWidth = p.r;
+        cx.strokeStyle = p.color;
+        cx.moveTo(p.x + p.tilt + p.r / 3, p.y);
+        cx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r);
+        cx.stroke();
+        p.y += p.d;
+        p.tiltAngle += p.tiltSpeed;
+        p.tilt = Math.sin(p.tiltAngle) * 15;
+      });
+      frame++;
+      if (frame < 180) requestAnimationFrame(draw);
+      else cc.style.display = 'none';
+    }
+    draw();
+  }
+
+  window.addEventListener('load', () => panels.forEach((_, i) => initPanel(i)));
+  window.addEventListener('resize', () => panels.forEach((_, i) => initPanel(i)));
+
+  // Copy voucher code on click
+  document.getElementById('voucherCode').addEventListener('click', function() {
+    const code = this.textContent.replace('📋','').trim();
+    navigator.clipboard.writeText(code).then(() => {
+      this.textContent = '✓ Copied!';
+      this.classList.add('copied');
+      setTimeout(() => {
+        this.textContent = code;
+        this.classList.remove('copied');
+      }, 2000);
+    });
+  });
+</script>
+</body>
+</html>
