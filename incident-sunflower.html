@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Incident Garden 🌻</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --navy:   #0D1117;
+  --panel:  #161B22;
+  --border: #21262D;
+  --green:  #00FF88;
+  --amber:  #FFB800;
+  --red:    #FF4444;
+  --blue:   #4A9EFF;
+  --muted:  #8B949E;
+  --text:   #E6EDF3;
+  --mono:   'JetBrains Mono', monospace;
+  --sans:   'Inter', sans-serif;
+}
+
+body {
+  background: var(--navy);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* ── Grid scan-line texture ── */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,255,136,0.015) 2px,
+    rgba(0,255,136,0.015) 4px
+  );
+  pointer-events:none;
+  z-index:1000;
+}
+
+/* ── Layout ── */
+.shell {
+  display: grid;
+  grid-template-columns: 260px 1fr 260px;
+  grid-template-rows: 56px 1fr 56px;
+  height: 100vh;
+  gap: 0;
+}
+
+/* ── Topbar ── */
+.topbar {
+  grid-column: 1 / -1;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.topbar-brand {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.topbar-brand span { color: var(--muted); font-weight: 400; }
+.topbar-clock {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+.status-pill {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: all 0.4s;
+}
+.status-pill.ok      { background: rgba(0,255,136,0.12); color: var(--green); border: 1px solid rgba(0,255,136,0.3); }
+.status-pill.warn    { background: rgba(255,184,0,0.12);  color: var(--amber); border: 1px solid rgba(255,184,0,0.3); }
+.status-pill.crit    { background: rgba(255,68,68,0.12);  color: var(--red);   border: 1px solid rgba(255,68,68,0.3); animation: pulse-border 1s ease-in-out infinite; }
+
+@keyframes pulse-border {
+  0%,100% { box-shadow: 0 0 0 0 rgba(255,68,68,0.3); }
+  50%      { box-shadow: 0 0 0 4px rgba(255,68,68,0); }
+}
+
+/* ── Left panel ── */
+.left-panel {
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  overflow-y: auto;
+}
+.panel-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0 20px 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+
+/* Petal services list */
+.service-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 20px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-left: 2px solid transparent;
+}
+.service-item:hover { background: rgba(255,255,255,0.03); }
+.service-item.active-svc { border-left-color: var(--green); background: rgba(0,255,136,0.04); }
+.service-item.down-svc   { border-left-color: var(--red);   background: rgba(255,68,68,0.04); }
+.service-item.warn-svc   { border-left-color: var(--amber); background: rgba(255,184,0,0.04); }
+
+.svc-name {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text);
+}
+.svc-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+.svc-dot.ok   { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.svc-dot.warn { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+.svc-dot.down { background: var(--red);   box-shadow: 0 0 6px var(--red); animation: blink 0.8s step-end infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+/* ── Center ── */
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 20px;
+  gap: 16px;
+}
+
+/* Flower container */
+#flower-wrap {
+  position: relative;
+  width: 320px;
+  height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: filter 0.6s;
+}
+
+#flower-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transition: transform 0.15s ease-out;
+  filter: drop-shadow(0 0 32px rgba(0,255,136,0.12));
+}
+
+/* Health ring */
+.health-ring-wrap {
+  position: absolute;
+  inset: -20px;
+  pointer-events: none;
+}
+
+/* Uptime label on hover */
+.petal-tip {
+  position: absolute;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--green);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+  z-index: 50;
+}
+
+/* Mood label */
+#mood {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  height: 18px;
+  transition: color 0.3s;
+  text-align: center;
+}
+
+/* Resolve button */
+#resolve-btn {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 10px 28px;
+  border-radius: 4px;
+  border: 1px solid var(--red);
+  background: rgba(255,68,68,0.1);
+  color: var(--red);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: none;
+}
+#resolve-btn:hover {
+  background: rgba(255,68,68,0.2);
+  box-shadow: 0 0 16px rgba(255,68,68,0.25);
+}
+#resolve-btn.hidden { display: none !important; }
+
+/* Breathing guide */
+#breathe-btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  padding: 7px 18px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+#breathe-btn:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.btn-row { display: flex; gap: 10px; align-items: center; }
+
+/* Breathe overlay */
+#breathe-overlay {
+  position: fixed; inset: 0;
+  background: rgba(13,17,23,0.95);
+  z-index: 500;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+#breathe-overlay.active { display: flex; }
+#breathe-circle {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  border: 2px solid var(--blue);
+  box-shadow: 0 0 0 0 rgba(74,158,255,0.3);
+  transition: transform 4s ease-in-out, box-shadow 4s ease-in-out;
+}
+#breathe-circle.expand {
+  transform: scale(2.2);
+  box-shadow: 0 0 0 40px rgba(74,158,255,0);
+}
+#breathe-text {
+  font-family: var(--mono);
+  font-size: 18px;
+  color: var(--blue);
+  letter-spacing: 0.1em;
+  min-width: 120px;
+  text-align: center;
+}
+#breathe-close {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  margin-top: 16px;
+  background: none;
+  border: none;
+}
+#breathe-close:hover { color: var(--text); }
+
+/* ── Right panel ── */
+.right-panel {
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  overflow-y: auto;
+}
+
+/* Incident log */
+.log-entry {
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1.6;
+  animation: slide-in 0.3s ease;
+}
+@keyframes slide-in {
+  from { opacity:0; transform: translateX(12px); }
+  to   { opacity:1; transform: translateX(0); }
+}
+.log-time { color: var(--muted); }
+.log-msg  { color: var(--text); margin-top: 2px; }
+.log-sev  {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 2px;
+  margin-bottom: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.sev-p1   { background: rgba(255,68,68,0.18); color: var(--red); }
+.sev-p2   { background: rgba(255,184,0,0.15); color: var(--amber); }
+.sev-p3   { background: rgba(74,158,255,0.15); color: var(--blue); }
+.sev-ok   { background: rgba(0,255,136,0.12); color: var(--green); }
+
+/* Stats row */
+.stat-row {
+  display: flex;
+  padding: 12px 20px;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+}
+.stat-item {
+  flex: 1;
+  text-align: center;
+}
+.stat-val {
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  transition: color 0.4s;
+}
+.stat-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+/* Sparkline */
+.sparkline-wrap {
+  padding: 12px 20px 4px;
+}
+.sparkline-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+canvas#spark { width: 100%; height: 40px; }
+
+/* ── Bottombar ── */
+.bottombar {
+  grid-column: 1 / -1;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+}
+.bottombar-tip { display: flex; align-items: center; gap: 6px; }
+kbd {
+  background: var(--border);
+  border: 1px solid #30363D;
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text);
+}
+
+/* Confetti */
+.confetti-piece {
+  position: fixed;
+  width: 8px; height: 8px;
+  pointer-events: none;
+  z-index: 400;
+  border-radius: 2px;
+  animation: confetti-fall linear forwards;
+}
+@keyframes confetti-fall {
+  0%   { opacity:1; transform: translateY(0) rotate(0deg); }
+  100% { opacity:0; transform: translateY(600px) rotate(720deg); }
+}
+
+/* Ripple */
+.ripple {
+  position: fixed;
+  border-radius: 50%;
+  border: 2px solid var(--green);
+  pointer-events: none;
+  z-index: 300;
+  transform: translate(-50%,-50%);
+  animation: ripple-expand 0.7s ease-out forwards;
+}
+@keyframes ripple-expand {
+  from { width:0; height:0; opacity:0.8; }
+  to   { width:200px; height:200px; opacity:0; }
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      🌻 INCIDENT GARDEN <span>/ status.sunflower.io</span>
+    </div>
+    <div id="global-status" class="status-pill ok">ALL SYSTEMS NOMINAL</div>
+    <div class="topbar-clock" id="clock">–</div>
+  </header>
+
+  <!-- LEFT: Services -->
+  <aside class="left-panel">
+    <div class="panel-title">Services · click to toggle</div>
+    <div id="services-list"></div>
+
+    <div style="margin-top:auto; padding:16px 20px; border-top:1px solid var(--border);">
+      <div class="panel-title" style="border:none; padding:0 0 8px; margin:0;">Health Score</div>
+      <div style="font-family:var(--mono); font-size:28px; font-weight:700; transition:color 0.4s;" id="health-score">100%</div>
+      <div style="font-family:var(--mono); font-size:10px; color:var(--muted); margin-top:4px;">overall system health</div>
+    </div>
+  </aside>
+
+  <!-- CENTER: The flower -->
+  <main class="center">
+    <div id="flower-wrap">
+      <svg id="flower-svg" viewBox="-160 -160 320 320" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="discGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#5D3A1A"/>
+            <stop offset="100%" stop-color="#2E1A06"/>
+          </radialGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <radialGradient id="healthRingGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="var(--green)" stop-opacity="0.1"/>
+            <stop offset="100%" stop-color="var(--green)" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+
+        <!-- Stem -->
+        <line x1="0" y1="90" x2="0" y2="200" stroke="#2E7D32" stroke-width="14" stroke-linecap="round" id="stem-line"/>
+        <line x1="0" y1="130" x2="-40" y2="110" stroke="#388E3C" stroke-width="8" stroke-linecap="round"/>
+        <ellipse cx="-52" cy="104" rx="20" ry="10" fill="#388E3C" transform="rotate(-30 -52 104)"/>
+
+        <!-- Petals group -->
+        <g id="petals-g"></g>
+
+        <!-- Inner ring -->
+        <circle cx="0" cy="0" r="58" fill="#4A2C0A" opacity="0.6"/>
+        <!-- Disc -->
+        <circle cx="0" cy="0" r="52" fill="url(#discGrad)"/>
+
+        <!-- Seeds fibonacci -->
+        <g id="seeds-g" opacity="0.7"></g>
+
+        <!-- Health ring arc -->
+        <circle id="health-arc" cx="0" cy="0" r="68"
+          fill="none"
+          stroke="var(--green)"
+          stroke-width="3"
+          stroke-dasharray="427 427"
+          stroke-dashoffset="0"
+          stroke-linecap="round"
+          transform="rotate(-90)"
+          opacity="0.5"
+          style="transition: stroke-dashoffset 0.6s ease, stroke 0.4s"/>
+
+        <!-- Center text -->
+        <text id="center-pct" x="0" y="6" text-anchor="middle"
+          font-family="'JetBrains Mono',monospace" font-size="18" font-weight="700"
+          fill="#00FF88" style="transition:fill 0.4s">100%</text>
+        <text x="0" y="22" text-anchor="middle"
+          font-family="'JetBrains Mono',monospace" font-size="8"
+          fill="#8B949E" letter-spacing="2">HEALTH</text>
+      </svg>
+    </div>
+
+    <div id="mood">🌻 all systems go · hover a petal to inspect</div>
+
+    <div class="btn-row">
+      <button id="resolve-btn" onclick="resolveAll()">⚡ Resolve All Incidents</button>
+      <button id="breathe-btn" onclick="startBreathe()">◎ breathe</button>
+    </div>
+  </main>
+
+  <!-- RIGHT: Log -->
+  <aside class="right-panel">
+    <div class="panel-title">Incident Log</div>
+
+    <div class="stat-row">
+      <div class="stat-item">
+        <div class="stat-val" id="stat-open" style="color:var(--red)">0</div>
+        <div class="stat-label">Open</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val" id="stat-resolved" style="color:var(--green)">0</div>
+        <div class="stat-label">Resolved</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val" id="stat-uptime" style="color:var(--blue)">100%</div>
+        <div class="stat-label">Uptime</div>
+      </div>
+    </div>
+
+    <div class="sparkline-wrap">
+      <div class="sparkline-label">Error rate · last 20 ticks</div>
+      <canvas id="spark" width="220" height="40"></canvas>
+    </div>
+
+    <div id="log-list"></div>
+  </aside>
+
+  <!-- BOTTOMBAR -->
+  <footer class="bottombar">
+    <div class="bottombar-tip">
+      <kbd>click petal</kbd> toggle service &nbsp;·&nbsp;
+      <kbd>R</kbd> resolve all &nbsp;·&nbsp;
+      <kbd>B</kbd> breathe
+    </div>
+    <div id="incident-count" style="color:var(--muted)">0 active incidents</div>
+    <div>built for the analyst who keeps the lights on 💚</div>
+  </footer>
+</div>
+
+<!-- Breathe overlay -->
+<div id="breathe-overlay">
+  <div style="font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase">Box Breathing · 4-4-4-4</div>
+  <div id="breathe-circle"></div>
+  <div id="breathe-text">inhale</div>
+  <button id="breathe-close" onclick="stopBreathe()">press ESC or click to close</button>
+</div>
+
+<!-- Petal tooltip -->
+<div class="petal-tip" id="petal-tip"></div>
+
+<script>
+// ── Services (petals) ─────────────────────────────────────────────────────────
+const SERVICES = [
+  { name: 'api-gateway',    uptime: 99.98 },
+  { name: 'auth-service',   uptime: 99.95 },
+  { name: 'data-pipeline',  uptime: 99.87 },
+  { name: 'db-primary',     uptime: 100.0 },
+  { name: 'cache-layer',    uptime: 99.92 },
+  { name: 'cdn-edge',       uptime: 99.99 },
+  { name: 'notify-worker',  uptime: 99.76 },
+  { name: 'search-index',   uptime: 99.91 },
+  { name: 'billing-svc',    uptime: 99.89 },
+  { name: 'metrics-ingest', uptime: 99.94 },
+  { name: 'log-aggregator', uptime: 99.83 },
+  { name: 'scheduler',      uptime: 99.97 },
+];
+
+const STATUS = SERVICES.map(() => 'ok'); // 'ok' | 'warn' | 'down'
+let resolvedCount = 0;
+let openCount = 0;
+const errorHistory = Array(20).fill(0);
+
+const PHI = (1 + Math.sqrt(5)) / 2;
+
+// ── Build SVG petals ──────────────────────────────────────────────────────────
+const petalsG = document.getElementById('petals-g');
+const N = SERVICES.length;
+const petalEls = [];
+
+SERVICES.forEach((svc, i) => {
+  const angle = i * (360 / N);
+  const rad = angle * Math.PI / 180;
+  const dist = 100;
+  const cx = (dist * Math.sin(rad)).toFixed(2);
+  const cy = (-dist * Math.cos(rad)).toFixed(2);
+
+  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.setAttribute('transform', `rotate(${angle})`);
+  g.style.cursor = 'pointer';
+  g.style.transition = 'transform 0.3s ease';
+
+  const petal = document.createElementNS('http://www.w3.org/2000/svg','ellipse');
+  petal.setAttribute('cx', '0');
+  petal.setAttribute('cy', '-100');
+  petal.setAttribute('rx', '16');
+  petal.setAttribute('ry', '40');
+  petal.setAttribute('fill', '#FFD600');
+  petal.setAttribute('stroke', '#C8740A');
+  petal.setAttribute('stroke-width', '0.8');
+  petal.style.transition = 'fill 0.4s, transform 0.3s';
+  petal.style.transformOrigin = '0 -60px';
+
+  // Hover
+  g.addEventListener('mouseenter', (e) => {
+    petal.style.transform = 'scaleY(1.08) scaleX(1.05)';
+    showPetalTip(svc, i, e);
+  });
+  g.addEventListener('mousemove', (e) => movePetalTip(e));
+  g.addEventListener('mouseleave', () => {
+    petal.style.transform = '';
+    hidePetalTip();
+  });
+
+  // Click to toggle
+  g.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleService(i);
+    spawnRipple(e.clientX, e.clientY);
+  });
+
+  g.appendChild(petal);
+  petalsG.appendChild(g);
+  petalEls.push({ g, petal });
+});
+
+// ── Seeds ─────────────────────────────────────────────────────────────────────
+const seedsG = document.getElementById('seeds-g');
+for (let i = 0; i < 160; i++) {
+  const r = 48 * Math.sqrt(i / 160);
+  const theta = i * 2 * Math.PI / (PHI * PHI);
+  const x = (r * Math.cos(theta)).toFixed(2);
+  const y = (r * Math.sin(theta)).toFixed(2);
+  const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  dot.setAttribute('cx', x);
+  dot.setAttribute('cy', y);
+  dot.setAttribute('r', '2');
+  dot.setAttribute('fill', i % 3 === 0 ? '#8D6E63' : '#5D3A1A');
+  seedsG.appendChild(dot);
+}
+
+// ── Services list (left panel) ────────────────────────────────────────────────
+const servicesList = document.getElementById('services-list');
+const svcEls = [];
+
+SERVICES.forEach((svc, i) => {
+  const div = document.createElement('div');
+  div.className = 'service-item active-svc';
+  div.innerHTML = `<span class="svc-name">${svc.name}</span><span class="svc-dot ok"></span>`;
+  div.addEventListener('click', () => { toggleService(i); spawnRipple(div.getBoundingClientRect().left, div.getBoundingClientRect().top); });
+  servicesList.appendChild(div);
+  svcEls.push(div);
+});
+
+// ── Toggle service ────────────────────────────────────────────────────────────
+function toggleService(i) {
+  if (STATUS[i] === 'ok') {
+    STATUS[i] = Math.random() < 0.5 ? 'warn' : 'down';
+  } else {
+    STATUS[i] = 'ok';
+  }
+  updateAll(i);
+}
+
+function resolveAll() {
+  STATUS.fill('ok');
+  SERVICES.forEach((_, i) => updateAll(i));
+  resolvedCount += openCount;
+  openCount = 0;
+  addLog('ok', 'P0', 'Mass resolve: all incidents cleared by analyst 🌻');
+  celebrateAll();
+  updateStats();
+}
+
+function updateAll(i) {
+  const status = STATUS[i];
+  const { g, petal } = petalEls[i];
+  const dot = svcEls[i].querySelector('.svc-dot');
+  const svcItem = svcEls[i];
+
+  // Petal color
+  const colors = { ok: '#FFD600', warn: '#FFB800', down: '#FF4444' };
+  petal.setAttribute('fill', colors[status]);
+
+  // Petal droop on down
+  if (status === 'down') {
+    g.style.transform = `rotate(0) scaleY(0.82)`;
+    g.style.opacity = '0.7';
+  } else if (status === 'warn') {
+    g.style.transform = '';
+    g.style.opacity = '0.9';
+  } else {
+    g.style.transform = '';
+    g.style.opacity = '1';
+  }
+
+  // Dot
+  dot.className = `svc-dot ${status}`;
+  svcItem.className = `service-item ${status}-svc`;
+
+  // Log
+  const msgs = {
+    ok:   [`${SERVICES[i].name} restored`, `${SERVICES[i].name} incident resolved`, `${SERVICES[i].name} back to operational`],
+    warn: [`${SERVICES[i].name} latency spike detected`, `${SERVICES[i].name} error rate elevated`, `${SERVICES[i].name} degraded performance`],
+    down: [`${SERVICES[i].name} is DOWN`, `${SERVICES[i].name} health check failed`, `ALERT: ${SERVICES[i].name} unreachable`],
+  };
+  const sevMap = { ok: 'ok', warn: 'p2', down: 'p1' };
+  const m = msgs[status];
+  addLog(sevMap[status], sevMap[status].toUpperCase(), m[Math.floor(Math.random()*m.length)]);
+
+  // Track counts
+  if (status !== 'ok') openCount++;
+  else if (openCount > 0) { resolvedCount++; openCount = Math.max(0, openCount - 1); }
+
+  recalcHealth();
+  updateStats();
+}
+
+// ── Health calculation ────────────────────────────────────────────────────────
+function recalcHealth() {
+  const downCount  = STATUS.filter(s => s === 'down').length;
+  const warnCount  = STATUS.filter(s => s === 'warn').length;
+  const healthPct  = Math.round(((N - downCount - warnCount * 0.5) / N) * 100);
+
+  // Arc
+  const circumference = 2 * Math.PI * 68;
+  const offset = circumference * (1 - healthPct / 100);
+  const arc = document.getElementById('health-arc');
+  arc.setAttribute('stroke-dasharray', `${circumference.toFixed(1)} ${circumference.toFixed(1)}`);
+  arc.setAttribute('stroke-dashoffset', offset.toFixed(1));
+
+  // Colors
+  const color = healthPct === 100 ? 'var(--green)' : healthPct > 75 ? 'var(--amber)' : 'var(--red)';
+  arc.setAttribute('stroke', color);
+  const pctEl = document.getElementById('center-pct');
+  pctEl.textContent = healthPct + '%';
+  pctEl.setAttribute('fill', color === 'var(--green)' ? '#00FF88' : color === 'var(--amber)' ? '#FFB800' : '#FF4444');
+
+  document.getElementById('health-score').textContent = healthPct + '%';
+  document.getElementById('health-score').style.color =
+    healthPct === 100 ? 'var(--green)' : healthPct > 75 ? 'var(--amber)' : 'var(--red)';
+
+  // Status pill
+  const pill = document.getElementById('global-status');
+  if (downCount > 0) {
+    pill.className = 'status-pill crit';
+    pill.textContent = `${downCount} INCIDENT${downCount>1?'S':''} ACTIVE`;
+    document.getElementById('mood').textContent = '🚨 incidents detected · resolve to make the sunflower happy';
+    document.getElementById('mood').style.color = '#FF4444';
+    document.getElementById('resolve-btn').style.display = 'block';
+  } else if (warnCount > 0) {
+    pill.className = 'status-pill warn';
+    pill.textContent = `${warnCount} SERVICE${warnCount>1?'S':''} DEGRADED`;
+    document.getElementById('mood').textContent = '⚠️ degraded — watching closely';
+    document.getElementById('mood').style.color = '#FFB800';
+    document.getElementById('resolve-btn').style.display = 'block';
+  } else {
+    pill.className = 'status-pill ok';
+    pill.textContent = 'ALL SYSTEMS NOMINAL';
+    document.getElementById('mood').textContent = '🌻 all clear · you kept the garden alive';
+    document.getElementById('mood').style.color = 'var(--muted)';
+    document.getElementById('resolve-btn').style.display = 'none';
+  }
+
+  document.getElementById('incident-count').textContent =
+    downCount + warnCount === 0 ? '0 active incidents' : `${downCount + warnCount} active incident${downCount+warnCount>1?'s':''}`;
+
+  // Error history
+  errorHistory.push(downCount + warnCount);
+  errorHistory.shift();
+  drawSparkline();
+}
+
+// ── Stats ─────────────────────────────────────────────────────────────────────
+function updateStats() {
+  document.getElementById('stat-open').textContent = openCount;
+  document.getElementById('stat-resolved').textContent = resolvedCount;
+  const upPct = Math.round((resolvedCount / Math.max(1, resolvedCount + openCount)) * 100);
+  document.getElementById('stat-uptime').textContent = STATUS.every(s=>s==='ok') ? '100%' : Math.max(0, 100 - STATUS.filter(s=>s==='down').length * 8) + '%';
+}
+
+// ── Incident log ──────────────────────────────────────────────────────────────
+const logList = document.getElementById('log-list');
+function addLog(sev, sevLabel, msg) {
+  const now = new Date();
+  const t = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+  const el = document.createElement('div');
+  el.className = 'log-entry';
+  const sevClass = { ok:'sev-ok', p1:'sev-p1', p2:'sev-p2', p3:'sev-p3', p0:'sev-p1' }[sev] || 'sev-p3';
+  el.innerHTML = `<span class="log-sev ${sevClass}">${sevLabel}</span><br><span class="log-time">${t}</span><br><span class="log-msg">${msg}</span>`;
+  logList.insertBefore(el, logList.firstChild);
+  // Keep max 30
+  while (logList.children.length > 30) logList.removeChild(logList.lastChild);
+}
+
+// ── Sparkline ─────────────────────────────────────────────────────────────────
+function drawSparkline() {
+  const canvas = document.getElementById('spark');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth * devicePixelRatio || 220;
+  const H = 40;
+  canvas.width = W;
+  canvas.height = H;
+  ctx.clearRect(0, 0, W, H);
+  const max = Math.max(1, ...errorHistory);
+  const step = W / (errorHistory.length - 1);
+  ctx.beginPath();
+  errorHistory.forEach((v, i) => {
+    const x = i * step;
+    const y = H - (v / max) * (H - 4) - 2;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = errorHistory[errorHistory.length-1] > 0 ? '#FF4444' : '#00FF88';
+  ctx.lineWidth = 1.5 * devicePixelRatio;
+  ctx.stroke();
+  // Fill
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+  ctx.fillStyle = errorHistory[errorHistory.length-1] > 0
+    ? 'rgba(255,68,68,0.08)' : 'rgba(0,255,136,0.06)';
+  ctx.fill();
+}
+drawSparkline();
+
+// ── Petal tooltip ─────────────────────────────────────────────────────────────
+const tip = document.getElementById('petal-tip');
+function showPetalTip(svc, i, e) {
+  const status = STATUS[i];
+  const statusStr = { ok:'● operational', warn:'▲ degraded', down:'✕ down' }[status];
+  const color = { ok:'#00FF88', warn:'#FFB800', down:'#FF4444' }[status];
+  tip.innerHTML = `<span style="color:${color}">${statusStr}</span><br>${svc.name}<br><span style="color:#8B949E">uptime ${svc.uptime}%</span>`;
+  tip.style.opacity = '1';
+  movePetalTip(e);
+}
+function movePetalTip(e) {
+  tip.style.left = (e.clientX + 14) + 'px';
+  tip.style.top  = (e.clientY - 10) + 'px';
+}
+function hidePetalTip() { tip.style.opacity = '0'; }
+
+// ── Heliotropism — flower follows mouse ───────────────────────────────────────
+let mx = window.innerWidth/2, my = window.innerHeight/2;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+function animateStem() {
+  const wrap = document.getElementById('flower-wrap');
+  const r = wrap.getBoundingClientRect();
+  const cx = r.left + r.width/2;
+  const cy = r.top + r.height/2;
+  const dx = mx - cx, dy = my - cy;
+  const angle = Math.atan2(dx, -dy) * 180 / Math.PI;
+  const clamped = Math.max(-22, Math.min(22, angle));
+  document.getElementById('flower-svg').style.transform = `rotate(${clamped}deg)`;
+  requestAnimationFrame(animateStem);
+}
+requestAnimationFrame(animateStem);
+
+// ── Celebrate all clear ───────────────────────────────────────────────────────
+function celebrateAll() {
+  const colors = ['#FFD600','#00FF88','#4A9EFF','#FF4444','#FFB800'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.left = (20 + Math.random() * 60) + '%';
+      el.style.top  = '20%';
+      el.style.background = colors[Math.floor(Math.random()*colors.length)];
+      el.style.animationDuration = (1 + Math.random()*1.5) + 's';
+      el.style.borderRadius = Math.random()>0.5 ? '50%' : '2px';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2800);
+    }, i * 30);
+  }
+}
+
+function spawnRipple(x, y) {
+  const el = document.createElement('div');
+  el.className = 'ripple';
+  el.style.left = x + 'px';
+  el.style.top  = y + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 800);
+}
+
+// ── Clock ─────────────────────────────────────────────────────────────────────
+function tick() {
+  const now = new Date();
+  const t = now.toUTCString().replace('GMT','UTC');
+  document.getElementById('clock').textContent = t;
+}
+tick();
+setInterval(tick, 1000);
+
+// ── Box breathing ─────────────────────────────────────────────────────────────
+let breatheActive = false;
+let breatheTimeout = null;
+const breathePhases = [
+  { label:'inhale', dur:4000, expand:true },
+  { label:'hold', dur:4000, expand:true },
+  { label:'exhale', dur:4000, expand:false },
+  { label:'hold', dur:4000, expand:false },
+];
+let breathePhase = 0;
+
+function startBreathe() {
+  breatheActive = true;
+  breathePhase = 0;
+  document.getElementById('breathe-overlay').classList.add('active');
+  runBreathePhase();
+}
+function stopBreathe() {
+  breatheActive = false;
+  clearTimeout(breatheTimeout);
+  document.getElementById('breathe-overlay').classList.remove('active');
+  document.getElementById('breathe-circle').classList.remove('expand');
+}
+function runBreathePhase() {
+  if (!breatheActive) return;
+  const phase = breathePhases[breathePhase % breathePhases.length];
+  document.getElementById('breathe-text').textContent = phase.label;
+  const circle = document.getElementById('breathe-circle');
+  if (phase.expand) circle.classList.add('expand');
+  else circle.classList.remove('expand');
+  breatheTimeout = setTimeout(() => {
+    breathePhase++;
+    runBreathePhase();
+  }, phase.dur);
+}
+
+// ── Keyboard shortcuts ────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') stopBreathe();
+  if (e.key.toLowerCase() === 'r') resolveAll();
+  if (e.key.toLowerCase() === 'b') {
+    breatheActive ? stopBreathe() : startBreathe();
+  }
+});
+
+// ── Random ambient incident (rare, fun easter egg) ────────────────────────────
+setInterval(() => {
+  if (Math.random() < 0.04) { // 4% chance every 8s
+    const i = Math.floor(Math.random() * N);
+    if (STATUS[i] === 'ok') {
+      STATUS[i] = 'warn';
+      updateAll(i);
+    }
+  }
+}, 8000);
+
+// ── Initial log entries ───────────────────────────────────────────────────────
+addLog('ok', 'INFO', 'System boot · incident garden initialized');
+addLog('ok', 'INFO', 'All 12 services reporting nominal · 100% health');
+addLog('p3', 'P3',   'Routine check · no active incidents');
+
+recalcHealth();
+</script>
+</body>
+</html>
