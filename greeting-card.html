@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Greeting Card ✦</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --navy:  #0C0F1A;
+  --cream: #F5EDD6;
+  --gold:  #C9973A;
+  --text:  #2C1F0E;
+  --muted: #8C7A60;
+}
+
+html, body { height: 100%; }
+
+body {
+  background: var(--navy);
+  font-family: 'Cormorant Garamond', serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(201,151,58,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 80%, rgba(232,165,152,0.05) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* ── Editor ── */
+#editor {
+  width: 100%;
+  max-width: 560px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(201,151,58,0.22);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.editor-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--gold);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.editor-title::after { content:''; flex:1; height:1px; background:rgba(201,151,58,0.2); }
+
+.field-row { display:flex; gap:12px; margin-bottom:10px; }
+.field { flex:1; display:flex; flex-direction:column; gap:5px; }
+
+.field label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; color: var(--muted);
+  letter-spacing: 0.12em; text-transform: uppercase;
+}
+
+.field input,
+.field textarea,
+.field select {
+  background: rgba(245,237,214,0.06);
+  border: 1px solid rgba(201,151,58,0.18);
+  border-radius: 6px;
+  padding: 9px 12px;
+  color: var(--cream);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  outline: none;
+  width: 100%;
+  resize: none;
+  transition: border-color 0.2s;
+}
+.field input:focus,
+.field textarea:focus { border-color: rgba(201,151,58,0.5); background: rgba(245,237,214,0.09); }
+.field select { font-family:'JetBrains Mono',monospace; font-size:11px; cursor:pointer; appearance:none; }
+.field select option { background:#1a1f30; }
+
+.btn-row { display:flex; gap:10px; margin-top:14px; }
+
+button {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 10px 22px; border-radius: 6px;
+  border: none; cursor: pointer; transition: all 0.18s;
+}
+#play-btn {
+  background: linear-gradient(135deg, #C9973A, #e8b050);
+  color: var(--navy); flex: 1;
+}
+#play-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(201,151,58,0.35); }
+#play-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+#reset-btn {
+  background: transparent;
+  border: 1px solid rgba(201,151,58,0.25);
+  color: var(--muted);
+}
+#reset-btn:hover { border-color: rgba(201,151,58,0.5); color: var(--cream); }
+
+/* ── Card ── */
+#card-wrap { width:100%; max-width:560px; }
+
+#card {
+  width: 100%;
+  background: var(--cream);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 2px 0 #EDE0C4,
+    0 4px 0 #d8c9a8,
+    0 6px 0 #c8b898,
+    0 10px 48px rgba(0,0,0,0.55);
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 52px 56px 48px;
+}
+
+/* inner gold border */
+#card::after {
+  content: '';
+  position: absolute; inset: 14px;
+  border: 1px solid rgba(201,151,58,0.3);
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Corner ornaments */
+.corner {
+  position: absolute;
+  color: rgba(201,151,58,0.55);
+  font-size: 18px;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 4;
+}
+.corner.tl { top:20px; left:20px; }
+.corner.tr { top:20px; right:20px; transform:scaleX(-1); }
+.corner.bl { bottom:20px; left:20px; transform:scaleY(-1); }
+.corner.br { bottom:20px; right:20px; transform:scale(-1); }
+
+/* ── Card inner ── */
+.card-inner {
+  position: relative; z-index: 2;
+  width: 100%; text-align: center;
+  display: flex; flex-direction: column;
+  align-items: center;
+}
+
+#occasion-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; font-weight: 500;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 18px;
+  opacity: 0;
+}
+
+#to-line {
+  font-family: 'Playfair Display', serif;
+  font-style: italic; font-size: 13px;
+  color: var(--muted); margin-bottom: 6px;
+  opacity: 0; letter-spacing: 0.04em;
+}
+
+#name-line {
+  font-family: 'Playfair Display', serif;
+  font-size: 34px; font-weight: 700;
+  color: var(--text); line-height: 1.1;
+  margin-bottom: 22px; opacity: 0;
+}
+
+#divider {
+  width: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin-bottom: 22px;
+  transition: width 0.9s ease;
+}
+
+#message-wrap {
+  min-height: 80px;
+  display: flex; align-items: center; justify-content: center;
+  width: 100%;
+}
+
+#message {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 19px; font-weight: 300; font-style: italic;
+  color: var(--text); line-height: 1.75; text-align: center;
+  max-width: 380px; opacity: 0;
+  transition: opacity 0.3s;
+}
+
+#cursor {
+  display: inline-block;
+  width: 2px; height: 1em;
+  background: var(--gold);
+  vertical-align: middle; margin-left: 1px;
+  opacity: 0;
+}
+#cursor.active { animation: blink 0.85s step-end infinite; opacity: 1; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+#from-line {
+  font-family: 'Playfair Display', serif;
+  font-style: italic; font-size: 14px;
+  color: var(--muted); margin-top: 24px;
+  opacity: 0; letter-spacing: 0.03em;
+}
+
+#seal {
+  width: 52px; height: 52px;
+  margin-top: 20px; opacity: 0;
+  position: relative; flex-shrink: 0;
+}
+#seal-ring {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(201,151,58,0.5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  background: radial-gradient(circle, rgba(201,151,58,0.07), transparent);
+  animation: spin 20s linear infinite;
+}
+#seal-inner {
+  position: absolute; inset: 6px;
+  border-radius: 50%;
+  border: 0.5px solid rgba(201,151,58,0.3);
+  animation: spin 20s linear infinite reverse;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Sunflowers ── */
+.sf-wrap {
+  position: absolute;
+  bottom: 0;
+  pointer-events: none;
+  opacity: 0;
+  transform-origin: bottom center;
+}
+.sf-wrap.sf-left  { left: 18px; }
+.sf-wrap.sf-right { right: 18px; }
+
+@keyframes sway-left  { 0%,100%{transform:rotate(-5deg)} 50%{transform:rotate(4deg)} }
+@keyframes sway-right { 0%,100%{transform:rotate(5deg)}  50%{transform:rotate(-4deg)} }
+
+.sf-wrap.sf-left.visible  { animation: sway-left  4.2s ease-in-out infinite; }
+.sf-wrap.sf-right.visible { animation: sway-right 4.2s ease-in-out infinite 0.7s; }
+
+/* Floating petals */
+.petal {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  animation: float-up linear forwards;
+}
+@keyframes float-up {
+  0%   { opacity:0;   transform: translateY(0)     rotate(0deg); }
+  10%  { opacity:0.55; }
+  85%  { opacity:0.3; }
+  100% { opacity:0;   transform: translateY(-340px) rotate(400deg); }
+}
+
+/* Spark */
+.spark {
+  position: fixed; pointer-events: none;
+  border-radius: 50%; z-index: 999;
+  animation: spark-out linear forwards;
+}
+@keyframes spark-out {
+  from { opacity:1; transform: translate(0,0) scale(1); }
+  to   { opacity:0; transform: translate(var(--dx),var(--dy)) scale(0); }
+}
+
+/* JS-triggered transitions */
+.will-fade   { transition: opacity 0.7s ease; }
+.will-slide  { transition: opacity 0.6s ease, transform 0.6s ease; }
+</style>
+</head>
+<body>
+
+<div id="editor">
+  <div class="editor-title">Compose your greeting</div>
+
+  <div class="field-row">
+    <div class="field">
+      <label>Occasion</label>
+      <select id="sel-occasion">
+        <option value="Welcome">🌱 Welcome</option>
+        <option value="Congratulations">🎉 Congratulations</option>
+        <option value="Good Wishes" selected>🌻 Good Wishes</option>
+        <option value="Happy Birthday">🎂 Happy Birthday</option>
+        <option value="Farewell">🌅 Farewell</option>
+        <option value="Thank You">🙏 Thank You</option>
+        <option value="Well Done">✦ Well Done</option>
+        <option value="Get Well Soon">💐 Get Well Soon</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>To</label>
+      <input type="text" id="inp-to" placeholder="Recipient's name" value="Priya">
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label>Message</label>
+      <textarea id="inp-msg" rows="3" placeholder="Write your message here…">May every morning bring you a little more light, and every evening remind you how far you've come.</textarea>
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label>From</label>
+      <input type="text" id="inp-from" placeholder="Your name" value="With love, the team">
+    </div>
+    <div class="field">
+      <label>Emoji seal</label>
+      <input type="text" id="inp-seal" placeholder="🌻" value="🌻" maxlength="2">
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button id="play-btn" onclick="playCard()">▶ Animate Card</button>
+    <button id="reset-btn" onclick="resetCard()">↺ Reset</button>
+  </div>
+</div>
+
+<div id="card-wrap">
+  <div id="card">
+    <span class="corner tl">❧</span>
+    <span class="corner tr">❧</span>
+    <span class="corner bl">❧</span>
+    <span class="corner br">❧</span>
+
+    <!-- Left sunflower -->
+    <div class="sf-wrap sf-left" id="sf-left">
+      <svg width="72" height="160" viewBox="0 0 72 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- stem -->
+        <path d="M36 155 Q30 120 34 80 Q32 50 36 20" stroke="#3a7d2c" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <!-- leaf left -->
+        <ellipse cx="22" cy="108" rx="16" ry="7" fill="#4a9a38" transform="rotate(-30 22 108)"/>
+        <!-- leaf right -->
+        <ellipse cx="46" cy="80" rx="14" ry="6" fill="#4a9a38" transform="rotate(25 46 80)"/>
+        <!-- petals -->
+        <g transform="translate(35,22)">
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#FFD600" stroke="#C8740A" stroke-width="0.5" transform="rotate(0)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#FFD600" stroke="#C8740A" stroke-width="0.5" transform="rotate(25)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#FFD600" stroke="#C8740A" stroke-width="0.5" transform="rotate(50)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#FFD600" stroke="#C8740A" stroke-width="0.5" transform="rotate(75)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#FFD600" stroke="#C8740A" stroke-width="0.5" transform="rotate(100)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#FFD600" stroke="#C8740A" stroke-width="0.5" transform="rotate(125)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#FFD600" stroke="#C8740A" stroke-width="0.5" transform="rotate(150)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#FFD600" stroke="#C8740A" stroke-width="0.5" transform="rotate(175)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#FFD600" stroke="#C8740A" stroke-width="0.5" transform="rotate(200)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#FFD600" stroke="#C8740A" stroke-width="0.5" transform="rotate(225)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#F4A900" stroke="#C8740A" stroke-width="0.5" transform="rotate(250)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#F4A900" stroke="#C8740A" stroke-width="0.5" transform="rotate(275)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#F4A900" stroke="#C8740A" stroke-width="0.5" transform="rotate(300)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#F4A900" stroke="#C8740A" stroke-width="0.5" transform="rotate(325)"/>
+          <!-- disc -->
+          <circle cx="0" cy="0" r="12" fill="#3B1A06"/>
+          <circle cx="0" cy="0" r="10" fill="#4A2C0A"/>
+          <!-- seeds -->
+          <circle cx="0"  cy="-5" r="1.5" fill="#7B5030"/>
+          <circle cx="4"  cy="-3" r="1.5" fill="#6B4020"/>
+          <circle cx="5"  cy="2"  r="1.5" fill="#7B5030"/>
+          <circle cx="2"  cy="6"  r="1.5" fill="#6B4020"/>
+          <circle cx="-3" cy="6"  r="1.5" fill="#7B5030"/>
+          <circle cx="-6" cy="2"  r="1.5" fill="#6B4020"/>
+          <circle cx="-5" cy="-3" r="1.5" fill="#7B5030"/>
+          <circle cx="-2" cy="-7" r="1.5" fill="#6B4020"/>
+          <!-- face -->
+          <circle cx="-4" cy="-1" r="2" fill="#FFF8E1"/>
+          <circle cx="4"  cy="-1" r="2" fill="#FFF8E1"/>
+          <circle cx="-4" cy="-1" r="1" fill="#3E2723"/>
+          <circle cx="4"  cy="-1" r="1" fill="#3E2723"/>
+          <path d="M -4 3 Q 0 6 4 3" stroke="#3E2723" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Right sunflower -->
+    <div class="sf-wrap sf-right" id="sf-right">
+      <svg width="72" height="160" viewBox="0 0 72 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- stem -->
+        <path d="M36 155 Q42 120 38 80 Q40 50 36 20" stroke="#3a7d2c" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <!-- leaf right -->
+        <ellipse cx="50" cy="108" rx="16" ry="7" fill="#4a9a38" transform="rotate(30 50 108)"/>
+        <!-- leaf left -->
+        <ellipse cx="26" cy="80" rx="14" ry="6" fill="#4a9a38" transform="rotate(-25 26 80)"/>
+        <!-- petals -->
+        <g transform="translate(37,22)">
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#FFD600" stroke="#C8740A" stroke-width="0.5" transform="rotate(0)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#FFD600" stroke="#C8740A" stroke-width="0.5" transform="rotate(25)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#FFD600" stroke="#C8740A" stroke-width="0.5" transform="rotate(50)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#FFD600" stroke="#C8740A" stroke-width="0.5" transform="rotate(75)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#FFD600" stroke="#C8740A" stroke-width="0.5" transform="rotate(100)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#FFD600" stroke="#C8740A" stroke-width="0.5" transform="rotate(125)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#FFD600" stroke="#C8740A" stroke-width="0.5" transform="rotate(150)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#FFD600" stroke="#C8740A" stroke-width="0.5" transform="rotate(175)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#FFD600" stroke="#C8740A" stroke-width="0.5" transform="rotate(200)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#FFD600" stroke="#C8740A" stroke-width="0.5" transform="rotate(225)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#F4A900" stroke="#C8740A" stroke-width="0.5" transform="rotate(250)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#F4A900" stroke="#C8740A" stroke-width="0.5" transform="rotate(275)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#F4A900" stroke="#C8740A" stroke-width="0.5" transform="rotate(300)"/>
+          <ellipse cx="0" cy="-20" rx="5.5" ry="13" fill="#F4A900" stroke="#C8740A" stroke-width="0.5" transform="rotate(325)"/>
+          <!-- disc -->
+          <circle cx="0" cy="0" r="12" fill="#3B1A06"/>
+          <circle cx="0" cy="0" r="10" fill="#4A2C0A"/>
+          <!-- seeds -->
+          <circle cx="0"  cy="-5" r="1.5" fill="#7B5030"/>
+          <circle cx="4"  cy="-3" r="1.5" fill="#6B4020"/>
+          <circle cx="5"  cy="2"  r="1.5" fill="#7B5030"/>
+          <circle cx="2"  cy="6"  r="1.5" fill="#6B4020"/>
+          <circle cx="-3" cy="6"  r="1.5" fill="#7B5030"/>
+          <circle cx="-6" cy="2"  r="1.5" fill="#6B4020"/>
+          <circle cx="-5" cy="-3" r="1.5" fill="#7B5030"/>
+          <circle cx="-2" cy="-7" r="1.5" fill="#6B4020"/>
+          <!-- face — eyes look inward (toward card center = left) -->
+          <circle cx="-4" cy="-1" r="2" fill="#FFF8E1"/>
+          <circle cx="4"  cy="-1" r="2" fill="#FFF8E1"/>
+          <circle cx="-5" cy="-1" r="1" fill="#3E2723"/>
+          <circle cx="3"  cy="-1" r="1" fill="#3E2723"/>
+          <path d="M -4 3 Q 0 6 4 3" stroke="#3E2723" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="card-inner">
+      <div id="occasion-badge">✦ &nbsp; Good Wishes &nbsp; ✦</div>
+      <div id="to-line">for</div>
+      <div id="name-line">Priya</div>
+      <div id="divider"></div>
+      <div id="message-wrap">
+        <div id="message"><span id="typed-text"></span><span id="cursor"></span></div>
+      </div>
+      <div id="from-line">— With love, the team</div>
+      <div id="seal">
+        <div id="seal-ring">🌻</div>
+        <div id="seal-inner"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let typeTimer    = null;
+let petalTimer   = null;
+let playing      = false;
+
+/* ── helpers ──────────────────────────────────────────────────────────────── */
+function show(id, delay, effect) {
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (effect === 'slide') {
+      el.style.transform = 'translateY(14px)';
+      el.style.opacity   = '0';
+      el.style.transition = 'opacity 0.65s ease, transform 0.65s ease';
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        el.style.opacity   = '1';
+        el.style.transform = 'translateY(0)';
+      }));
+    } else {
+      el.style.transition = 'opacity 0.7s ease';
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        el.style.opacity = '1';
+      }));
+    }
+  }, delay);
+}
+
+function hide(id) {
+  const el = document.getElementById(id);
+  el.style.transition = 'none';
+  el.style.opacity    = '0';
+  el.style.transform  = '';
+}
+
+/* ── petals ────────────────────────────────────────────────────────────────── */
+const PETALS = ['🌸','✦','·','✿','◦','❋'];
+function spawnPetal() {
+  const el = document.createElement('div');
+  el.className = 'petal';
+  el.textContent = PETALS[Math.floor(Math.random() * PETALS.length)];
+  el.style.left   = (6 + Math.random() * 88) + '%';
+  el.style.bottom = '-10px';
+  el.style.fontSize = (9 + Math.random() * 9) + 'px';
+  el.style.animationDuration = (5 + Math.random() * 7) + 's';
+  el.style.color = ['#C9973A','#E8A598','#b0a080','#d4b870'][Math.floor(Math.random()*4)];
+  document.getElementById('card').appendChild(el);
+  setTimeout(() => el.remove(), 13000);
+}
+
+/* ── typewriter ────────────────────────────────────────────────────────────── */
+function typeWrite(text, speed, onDone) {
+  const target  = document.getElementById('typed-text');
+  const cursor  = document.getElementById('cursor');
+  target.textContent = '';
+  cursor.classList.add('active');
+
+  const chars = [...text]; // handles emoji correctly
+  let i = 0;
+
+  function next() {
+    if (i >= chars.length) {
+      if (onDone) onDone();
+      return;
+    }
+    const ch = chars[i];
+    if (ch === '\n') {
+      target.appendChild(document.createElement('br'));
+    } else {
+      target.appendChild(document.createTextNode(ch));
+    }
+    i++;
+    const d = (ch === ',' || ch === '.') ? speed * 7
+            : ch === ' '                 ? speed * 0.7
+            : speed;
+    typeTimer = setTimeout(next, d);
+  }
+  next();
+}
+
+/* ── sparks ────────────────────────────────────────────────────────────────── */
+function fireSparks() {
+  const rect = document.getElementById('card').getBoundingClientRect();
+  const cx = rect.left + rect.width  / 2;
+  const cy = rect.top  + rect.height / 2;
+  const cols = ['#C9973A','#E8C070','#E8A598','#FFD600','#F5EDD6'];
+  for (let i = 0; i < 26; i++) {
+    const el  = document.createElement('div');
+    el.className = 'spark';
+    const a   = (i / 26) * Math.PI * 2;
+    const d   = 90 + Math.random() * 130;
+    el.style.cssText = `
+      width:${3+Math.random()*5}px; height:${3+Math.random()*5}px;
+      background:${cols[i%cols.length]};
+      left:${cx + Math.cos(a)*18}px; top:${cy + Math.sin(a)*18}px;
+      --dx:${Math.cos(a)*d}px; --dy:${Math.sin(a)*d}px;
+      animation-duration:${0.55+Math.random()*0.7}s;
+    `;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1400);
+  }
+}
+
+/* ── main play ─────────────────────────────────────────────────────────────── */
+function playCard() {
+  if (playing) return;
+  playing = true;
+  document.getElementById('play-btn').disabled = true;
+
+  const occasion = document.getElementById('sel-occasion').value;
+  const toName   = document.getElementById('inp-to').value.trim()  || 'Friend';
+  const msg      = document.getElementById('inp-msg').value.trim() || 'Wishing you all the best.';
+  const fromTxt  = document.getElementById('inp-from').value.trim()|| '—';
+  const sealCh   = document.getElementById('inp-seal').value.trim()|| '🌻';
+
+  // Update content
+  document.getElementById('occasion-badge').textContent = '✦  ' + occasion + '  ✦';
+  document.getElementById('name-line').textContent      = toName;
+  document.getElementById('from-line').textContent      = '— ' + fromTxt;
+  document.getElementById('seal-ring').textContent      = sealCh;
+
+  // Hide sunflowers
+  ['sf-left','sf-right'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('visible');
+    el.style.opacity = '0';
+    el.style.transition = 'none';
+    el.style.animation  = 'none';
+  });
+
+  // Hide everything
+  ['occasion-badge','to-line','name-line','from-line','seal'].forEach(hide);
+  document.getElementById('divider').style.transition = 'none';
+  document.getElementById('divider').style.width      = '0';
+  document.getElementById('message').style.opacity    = '0';
+  document.getElementById('typed-text').textContent   = '';
+  const cur = document.getElementById('cursor');
+  cur.classList.remove('active');
+  cur.style.opacity = '0';
+  document.querySelectorAll('.petal').forEach(p => p.remove());
+
+  // Start petals
+  spawnPetal();
+  petalTimer = setInterval(spawnPetal, 1900);
+
+  // Sequence
+  show('occasion-badge', 300,  'fade');
+  show('to-line',        750,  'slide');
+  show('name-line',      1050, 'slide');
+
+  setTimeout(() => {
+    document.getElementById('divider').style.transition = 'width 0.9s ease';
+    document.getElementById('divider').style.width = '200px';
+  }, 1500);
+
+  setTimeout(() => {
+    document.getElementById('message').style.transition = 'opacity 0.3s';
+    document.getElementById('message').style.opacity    = '1';
+    typeWrite(msg, 36, () => {
+      // cursor blinks 1s then hides
+      setTimeout(() => {
+        document.getElementById('cursor').classList.remove('active');
+        document.getElementById('cursor').style.opacity = '0';
+        // finish
+        show('from-line', 200,  'slide');
+        show('seal',      600,  'fade');
+        // Sunflowers grow in
+        setTimeout(() => {
+          ['sf-left','sf-right'].forEach((id, i) => {
+            const el = document.getElementById(id);
+            el.style.transition = 'opacity 0.5s ease';
+            el.style.opacity    = '1';
+            setTimeout(() => el.classList.add('visible'), 500);
+          });
+        }, 300);
+        setTimeout(() => {
+          fireSparks();
+          clearInterval(petalTimer);
+          document.getElementById('play-btn').disabled = false;
+          playing = false;
+        }, 1200);
+      }, 1000);
+    });
+  }, 2100);
+}
+
+/* ── reset ─────────────────────────────────────────────────────────────────── */
+function resetCard() {
+  clearTimeout(typeTimer);
+  clearInterval(petalTimer);
+  playing = false;
+  ['sf-left','sf-right'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('visible');
+    el.style.opacity    = '0';
+    el.style.transition = 'none';
+    el.style.animation  = 'none';
+  });
+
+  document.getElementById('play-btn').disabled = false;
+
+  ['occasion-badge','to-line','name-line','from-line','seal'].forEach(hide);
+  document.getElementById('divider').style.transition = 'none';
+  document.getElementById('divider').style.width      = '0';
+  document.getElementById('message').style.opacity    = '0';
+  document.getElementById('typed-text').textContent   = '';
+  const cur = document.getElementById('cursor');
+  cur.classList.remove('active');
+  cur.style.opacity = '0';
+  document.querySelectorAll('.petal').forEach(p => p.remove());
+}
+
+/* ── auto-play on load ──────────────────────────────────────────────────────── */
+window.addEventListener('load', () => setTimeout(playCard, 500));
+</script>
+</body>
+</html>
