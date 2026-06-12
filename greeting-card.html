@@ -318,22 +318,22 @@ button {
       </select>
     </div>
     <div class="field">
-      <label>To</label>
-      <input type="text" id="inp-to" placeholder="Recipient's name" value="Priya">
+      <label>To — Enter their name ✦</label>
+      <input type="text" id="inp-to" placeholder="e.g. Priya, Alex, Mum…" value="">
     </div>
   </div>
 
   <div class="field-row">
     <div class="field">
-      <label>Message</label>
-      <textarea id="inp-msg" rows="3" placeholder="Write your message here…">May every morning bring you a little more light, and every evening remind you how far you've come.</textarea>
+      <label>Write something for yourself ✦</label>
+      <textarea id="inp-msg" rows="3" placeholder="Write your own heartfelt message here… make it personal!"></textarea>
     </div>
   </div>
 
   <div class="field-row">
     <div class="field">
       <label>From</label>
-      <input type="text" id="inp-from" placeholder="Your name" value="With love, the team">
+      <input type="text" id="inp-from" placeholder="Your name or sign-off" value="">
     </div>
     <div class="field">
       <label>Emoji seal</label>
@@ -451,12 +451,12 @@ button {
     <div class="card-inner">
       <div id="occasion-badge">✦ &nbsp; Good Wishes &nbsp; ✦</div>
       <div id="to-line">for</div>
-      <div id="name-line">Priya</div>
+      <div id="name-line"></div>
       <div id="divider"></div>
       <div id="message-wrap">
         <div id="message"><span id="typed-text"></span><span id="cursor"></span></div>
       </div>
-      <div id="from-line">— With love, the team</div>
+      <div id="from-line"></div>
       <div id="seal">
         <div id="seal-ring">🌻</div>
         <div id="seal-inner"></div>
@@ -675,8 +675,7 @@ function resetCard() {
   document.querySelectorAll('.petal').forEach(p => p.remove());
 }
 
-/* ── auto-play on load ──────────────────────────────────────────────────────── */
-window.addEventListener('load', () => setTimeout(playCard, 500));
+/* auto-play disabled — user fills in the card first */
 </script>
 </body>
 </html>
