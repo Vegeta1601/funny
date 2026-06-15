@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Certified Foodie Memes</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;700;900&display=swap');
+
+  :root {
+    --bg: #0e0e0e;
+    --card: #1a1a1a;
+    --yellow: #ffe135;
+    --coral: #ff5733;
+    --mint: #00e5a0;
+    --white: #f5f5f5;
+    --gray: #888;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    font-family: 'Inter', sans-serif;
+    color: var(--white);
+    min-height: 100vh;
+    padding: 0 0 60px 0;
+  }
+
+  header {
+    text-align: center;
+    padding: 40px 20px 20px;
+    position: relative;
+  }
+
+  .site-label {
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 10vw, 96px);
+    line-height: 0.9;
+    color: var(--yellow);
+    text-shadow: 4px 4px 0 var(--coral);
+    letter-spacing: 2px;
+  }
+
+  h1 span {
+    color: var(--white);
+    text-shadow: 4px 4px 0 #333;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: var(--gray);
+    margin-top: 12px;
+    font-style: italic;
+  }
+
+  .divider {
+    width: 60px;
+    height: 3px;
+    background: var(--coral);
+    margin: 20px auto;
+    border-radius: 2px;
+  }
+
+  /* MEME GRID */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 28px 24px 22px;
+    border: 1.5px solid #2a2a2a;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+    cursor: default;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    border-color: #444;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--accent, var(--yellow));
+  }
+
+  .card.coral { --accent: var(--coral); }
+  .card.mint  { --accent: var(--mint); }
+  .card.yellow { --accent: var(--yellow); }
+
+  .emoji-big {
+    font-size: 48px;
+    display: block;
+    margin-bottom: 14px;
+    line-height: 1;
+  }
+
+  .setup {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--gray);
+    margin-bottom: 8px;
+  }
+
+  .punchline {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(26px, 5vw, 34px);
+    line-height: 1.05;
+    color: var(--white);
+    margin-bottom: 16px;
+  }
+
+  .punchline .highlight {
+    color: var(--accent, var(--yellow));
+  }
+
+  .tag-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+
+  .tag {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent, var(--yellow));
+    background: color-mix(in srgb, var(--accent, var(--yellow)) 12%, transparent);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  .forks {
+    font-size: 14px;
+    letter-spacing: -2px;
+  }
+
+  /* wide card */
+  .card.wide {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    padding: 28px 32px;
+  }
+
+  .card.wide .emoji-big {
+    font-size: 72px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+
+  .card.wide .content { flex: 1; }
+  .card.wide .punchline { font-size: clamp(30px, 5vw, 42px); }
+
+  /* bottom cta */
+  .bottom-note {
+    text-align: center;
+    padding: 40px 20px 0;
+    font-size: 12px;
+    color: #555;
+    font-style: italic;
+  }
+
+  .bottom-note span {
+    color: var(--coral);
+  }
+
+  /* shimmer on hover */
+  .card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.03) 50%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .card:hover::after { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="site-label">A sacred collection</p>
+  <h1>FOODIE<br><span>TRUTHS</span></h1>
+  <p class="subtitle">for those who eat with their whole personality</p>
+  <div class="divider"></div>
+</header>
+
+<div class="grid">
+
+  <!-- Wide hero card -->
+  <div class="card wide coral">
+    <span class="emoji-big">🍕</span>
+    <div class="content">
+      <p class="setup">An ancient wisdom</p>
+      <p class="punchline">I didn't come here to make <span class="highlight">friends.</span><br>I came here for the <span class="highlight">free bread.</span></p>
+      <div class="tag-row">
+        <span class="tag">#RestaurantMood</span>
+        <span class="forks">🍴🍴🍴🍴🍴</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card yellow">
+    <span class="emoji-big">📸</span>
+    <p class="setup">Every foodie, every time</p>
+    <p class="punchline">My food is getting <span class="highlight">cold</span> because the angles<br>weren't giving.</p>
+    <div class="tag-row">
+      <span class="tag">#WorthIt</span>
+      <span class="forks">🍴🍴🍴🍴</span>
+    </div>
+  </div>
+
+  <div class="card mint">
+    <span class="emoji-big">😤</span>
+    <p class="setup">Not a phase, mom</p>
+    <p class="punchline">I don't have <span class="highlight">trust issues.</span><br>I have <span class="highlight">menu issues.</span></p>
+    <div class="tag-row">
+      <span class="tag">#MenuAnxiety</span>
+      <span class="forks">🍴🍴🍴🍴🍴</span>
+    </div>
+  </div>
+
+  <div class="card coral">
+    <span class="emoji-big">🍜</span>
+    <p class="setup">Describing my weekend</p>
+    <p class="punchline">Nothing happened<br>but the <span class="highlight">ramen</span> was<br>life-changing.</p>
+    <div class="tag-row">
+      <span class="tag">#Priorities</span>
+      <span class="forks">🍴🍴🍴🍴🍴</span>
+    </div>
+  </div>
+
+  <div class="card yellow">
+    <span class="emoji-big">🥲</span>
+    <p class="setup">Fine dining, actually</p>
+    <p class="punchline">Paid <span class="highlight">₹2,400</span> for a portion<br>that needed its own<br><span class="highlight">missing persons report.</span></p>
+    <div class="tag-row">
+      <span class="tag">#TinyPlate</span>
+      <span class="forks">🍴🍴</span>
+    </div>
+  </div>
+
+  <div class="card mint">
+    <span class="emoji-big">🧠</span>
+    <p class="setup">My love language</p>
+    <p class="punchline">"I saved you<br>the <span class="highlight">last piece."</span></p>
+    <div class="tag-row">
+      <span class="tag">#Soulmate</span>
+      <span class="forks">🍴🍴🍴🍴🍴</span>
+    </div>
+  </div>
+
+  <!-- Wide card -->
+  <div class="card wide yellow">
+    <span class="emoji-big">🗺️</span>
+    <div class="content">
+      <p class="setup">My entire navigation strategy</p>
+      <p class="punchline">I don't know where I'm going,<br>but I know <span class="highlight">what I'm eating when I get there.</span></p>
+      <div class="tag-row">
+        <span class="tag">#FoodieGPS</span>
+        <span class="forks">🍴🍴🍴🍴🍴</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card coral">
+    <span class="emoji-big">😭</span>
+    <p class="setup">True horror</p>
+    <p class="punchline">They were <span class="highlight">"out of"</span><br>the one thing<br>I came for.</p>
+    <div class="tag-row">
+      <span class="tag">#Tragedy</span>
+      <span class="forks">🍴</span>
+    </div>
+  </div>
+
+  <div class="card mint">
+    <span class="emoji-big">👀</span>
+    <p class="setup">At every dinner table</p>
+    <p class="punchline">I ordered for the <span class="highlight">table</span> and I am<br>the <span class="highlight">table.</span></p>
+    <div class="tag-row">
+      <span class="tag">#NoRegrets</span>
+      <span class="forks">🍴🍴🍴🍴🍴</span>
+    </div>
+  </div>
+
+  <div class="card yellow">
+    <span class="emoji-big">🤌</span>
+    <p class="setup">The highest compliment</p>
+    <p class="punchline">"This tastes<br>exactly like my<br><span class="highlight">mom's version."</span></p>
+    <div class="tag-row">
+      <span class="tag">#Michelin0Stars</span>
+      <span class="forks">🍴🍴🍴🍴🍴</span>
+    </div>
+  </div>
+
+</div>
+
+<p class="bottom-note">made with <span>🍴 obsession</span> and zero guilt</p>
+
+</body>
+</html>
