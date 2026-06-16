@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Diagnostic</title>
+<style>
+  :root{
+    --bg-a:#dcc9fb;
+    --bg-b:#fad0c4;
+    --console-bg:#1c1a3a;
+    --console-line:#28e0a4;
+    --console-muted:#7a78a8;
+    --alert:#ff3b3b;
+    --party-1:#ff6b9d;
+    --party-2:#ffd93d;
+    --party-3:#4ecdc4;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;
+    height:100%;
+    font-family:Menlo,Consolas,"Courier New",monospace;
+    background:linear-gradient(135deg,var(--bg-a),var(--bg-b));
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .stage{
+    width:100%;
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+  }
+  .console{
+    width:min(420px,88vw);
+    background:var(--console-bg);
+    border-radius:18px;
+    padding:22px 22px 26px;
+    box-shadow:0 20px 50px rgba(0,0,0,.35);
+    color:var(--console-line);
+  }
+  .console-label{
+    font-size:11px;
+    letter-spacing:.14em;
+    color:var(--console-muted);
+    margin-bottom:14px;
+    text-transform:uppercase;
+  }
+  .bar-track{
+    height:8px;
+    border-radius:6px;
+    background:#33305f;
+    overflow:hidden;
+    margin-bottom:16px;
+  }
+  .bar-fill{
+    height:100%;
+    width:0%;
+    border-radius:6px;
+    background:linear-gradient(90deg,#ffd93d,#ff8a3d);
+    transition:width .35s linear;
+  }
+  .log{
+    min-height:170px;
+    font-size:13px;
+    line-height:1.65;
+  }
+  .log div{opacity:0;animation:fade .25s forwards;}
+  @keyframes fade{to{opacity:1;}}
+  .cursor{
+    display:inline-block;
+    width:7px;height:13px;
+    background:var(--console-line);
+    vertical-align:middle;
+    margin-left:2px;
+    animation:blink 1s steps(1) infinite;
+  }
+  @keyframes blink{50%{opacity:0;}}
+
+  .glitch{
+    position:fixed;inset:0;
+    background:#000;
+    color:var(--alert);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    font-family:Impact,"Arial Black",sans-serif;
+    font-size:clamp(28px,9vw,56px);
+    letter-spacing:.04em;
+    text-align:center;
+    z-index:5;
+  }
+  .glitch.show{display:flex;animation:shake .12s linear 4;}
+  @keyframes shake{
+    0%{transform:translate(0,0);}
+    25%{transform:translate(-6px,4px);}
+    50%{transform:translate(6px,-4px);}
+    75%{transform:translate(-4px,-3px);}
+    100%{transform:translate(0,0);}
+  }
+
+  .reveal{
+    position:fixed;inset:0;
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    background:linear-gradient(135deg,#ffe5ec,#fff6da);
+    z-index:6;
+    padding:24px;
+  }
+  .reveal.show{display:flex;}
+  .reveal h1{
+    font-family:"Comic Sans MS","Chalkboard SE",cursive;
+    font-size:clamp(40px,13vw,80px);
+    color:#ff2d78;
+    margin:0 0 6px;
+    transform:rotate(-3deg);
+    text-shadow:3px 3px 0 #ffd93d;
+  }
+  .reveal p{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    font-size:16px;
+    color:#5a3d52;
+    max-width:320px;
+    margin:0 0 22px;
+  }
+  .again{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    font-weight:700;
+    font-size:14px;
+    color:#fff;
+    background:#ff2d78;
+    border:none;
+    border-radius:999px;
+    padding:12px 26px;
+    cursor:pointer;
+  }
+  .again:focus-visible{outline:3px solid #1c1a3a;outline-offset:2px;}
+  .again:active{transform:scale(.97);}
+
+  .confetti{
+    position:absolute;
+    top:-10px;
+    width:8px;height:14px;
+    opacity:.9;
+    animation:fall linear forwards;
+  }
+  @keyframes fall{
+    to{transform:translateY(110vh) rotate(540deg);}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .glitch.show{animation:none;}
+    .confetti{animation:none;display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="console">
+    <div class="console-label">system diagnostic — v1.0</div>
+    <div class="bar-track"><div class="bar-fill" id="bar"></div></div>
+    <div class="log" id="log" aria-live="polite"></div>
+  </div>
+</div>
+
+<div class="glitch" id="glitch">SYSTEM<br>FAILURE</div>
+
+<div class="reveal" id="reveal">
+  <h1>GOTCHA!</h1>
+  <p>Relax — your phone is fine. You just got scanned straight into a prank. 😄</p>
+  <button class="again" id="again">Run it again</button>
+</div>
+
+<script>
+const lines = [
+  "checking battery integrity... OK",
+  "scanning snack reserves... 3% remaining",
+  "measuring patience levels... LOW",
+  "counting unread messages... 47 and rising",
+  "evaluating adulting proficiency... ERROR",
+  "searching for chill... not found",
+  "sass levels... CRITICAL",
+  "compiling excuses... 12 generated",
+  "fatal error: too much awesome detected"
+];
+
+const log = document.getElementById('log');
+const bar = document.getElementById('bar');
+const glitch = document.getElementById('glitch');
+const reveal = document.getElementById('reveal');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function typeLine(text, container, onDone){
+  const row = document.createElement('div');
+  container.appendChild(row);
+  let i = 0;
+  const speed = reduceMotion ? 0 : 18;
+  function step(){
+    row.textContent = '> ' + text.slice(0, i);
+    if(i < text.length){
+      i++;
+      setTimeout(step, speed);
+    } else {
+      onDone();
+    }
+  }
+  step();
+}
+
+function runSequence(){
+  log.innerHTML = '';
+  bar.style.width = '0%';
+  glitch.classList.remove('show');
+  reveal.classList.remove('show');
+
+  let idx = 0;
+  function next(){
+    if(idx < lines.length){
+      bar.style.width = Math.round(((idx+1)/lines.length)*100) + '%';
+      typeLine(lines[idx], log, () => {
+        idx++;
+        setTimeout(next, reduceMotion ? 80 : 260);
+      });
+    } else {
+      setTimeout(showGlitch, 350);
+    }
+  }
+  next();
+}
+
+function showGlitch(){
+  glitch.classList.add('show');
+  setTimeout(showReveal, reduceMotion ? 200 : 650);
+}
+
+function showReveal(){
+  glitch.classList.remove('show');
+  reveal.classList.add('show');
+  if(!reduceMotion) spawnConfetti();
+}
+
+function spawnConfetti(){
+  const colors = ['#ff6b9d','#ffd93d','#4ecdc4','#ff2d78'];
+  for(let i = 0; i < 60; i++){
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random()*100 + 'vw';
+    c.style.background = colors[i % colors.length];
+    c.style.animationDuration = (2.2 + Math.random()*1.8) + 's';
+    c.style.animationDelay = (Math.random()*0.6) + 's';
+    reveal.appendChild(c);
+    setTimeout(() => c.remove(), 5000);
+  }
+}
+
+document.getElementById('again').addEventListener('click', runSequence);
+
+runSequence();
+</script>
+
+</body>
+</html>
